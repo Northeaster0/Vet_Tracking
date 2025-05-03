@@ -1,0 +1,17 @@
+# Genel node_modules ignore
+frontend/node_modules/
+backend/node_modules/
+
+# Build dosyaları
+frontend/dist/
+frontend/build/
+backend/dist/
+backend/build/
+
+# Ortam dosyaları
+frontend/.env
+backend/.env
+
+# IDE ve sistem dosyaları
+.vscode/
+.DS_Store
