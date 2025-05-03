@@ -1,0 +1,10 @@
+USE Vet_Tracking_System;
+
+CREATE TABLE IF NOT EXISTS Report (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  date DATE NOT NULL,
+  type ENUM('patoloji', 'diger') NOT NULL,
+  fileUrl VARCHAR(255) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB; 

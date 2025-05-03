@@ -18,11 +18,12 @@ const PatientAcception: React.FC = () => {
 
   const actionButtons = [
     { title: 'Randevu Al', path: '/addAppointment', color: 'bg-blue-600 hover:bg-blue-700' },
-    { title: 'Tahliller', path: '/tests', color: 'bg-green-600 hover:bg-green-700' },
+    { title: 'Radyoloji ve Labaratuvar Sonuçları ', path: '/tests', color: 'bg-green-600 hover:bg-green-700' },
     { title: 'Geçmiş', path: '/animalHistory', color: 'bg-purple-600 hover:bg-purple-700' },
     { title: 'Reçete Ekle', path: '/addPrescriptions', color: 'bg-yellow-600 hover:bg-yellow-700' },
     { title: 'Bilgileri Düzenle', path: '/editPatientInfo', color: 'bg-indigo-600 hover:bg-indigo-700' },
-    { title: 'Aşı', path: '/doctorVaccineStatus', color: 'bg-red-600 hover:bg-red-700' }
+    { title: 'Aşı', path: '/doctorVaccineStatus', color: 'bg-red-600 hover:bg-red-700' },
+    { title: 'Raporlarım', path: '/patient-raports', color: 'bg-pink-600 hover:bg-pink-700' }
   ];
 
   return (

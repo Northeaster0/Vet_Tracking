@@ -22,6 +22,7 @@ import PatientVaccineStatus from './pages/PatientVaccineStatus';
 import WhatsWrong from './pages/WhatsWrong';
 import FindAnimals from './pages/FindAnimals';
 import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
+import PatientRaports from './pages/PatientRaports';
 
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
         <Route path="/whatsWrong" element={<WhatsWrong />} />
         <Route path="/findAnimals" element={<FindAnimals />} />
         <Route path="/doctorVaccineStatus" element={<DoctorVaccineStatus />} />
+        <Route path="/patient-raports" element={<PatientRaports />} />
       </Routes>
     </Router>
   );
