@@ -55,7 +55,7 @@ const FunFacts: React.FC = () => {
   return (
     <div className="mb-8">
       <div className="text-left">
-        <h3 className={`text-xl font-bold text-blue-900 mb-2 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+        <h3 className={`text-xl font-bold text-[#d68f13] mb-2 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
           {currentFact.header}
         </h3>
         <p className={`text-gray-700 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>

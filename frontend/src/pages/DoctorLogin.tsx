@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import FunFacts from '../components/FunFacts';
+import logo from '../logo.svg';
 
 const DoctorLogin: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -22,13 +23,14 @@ const DoctorLogin: React.FC = () => {
       });
       const data = await response.json();
       if (data.success) {
-        setMessage('Giriş Başarılı!');
+        setMessage('Giriş başarılı!');
         setIsError(false);
+        localStorage.setItem('doctor', JSON.stringify(data.doctor));
         setTimeout(() => {
           navigate('/animal-process');
         }, 1000);
       } else {
-        setMessage(data.message || 'Giriş Başarısız. Lütfen tekrar deneyin.');
+        setMessage(data.message || 'Giriş başarısız. Lütfen tekrar deneyin.');
         setIsError(true);
       }
     } catch (err) {
@@ -38,65 +40,91 @@ const DoctorLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <FunFacts />
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <Link 
-            to="/" 
-            className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-          >
-            ←
-          </Link>
-          
-          <h2 className="text-3xl font-bold text-center text-blue-900 mb-8">
-            Doktor Girişi
-          </h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                Kullanıcı Adı
-              </label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Kullanıcı adınızı girin"
-                required
-              />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white relative">
+      <div className="flex w-full h-screen">
+        {/* Sol panel: Logo, dalga ve gölgeli pati ikonu */}
+        <div className="hidden md:flex flex-col justify-between items-center w-1/2 bg-[#d68f13] relative overflow-hidden p-8">
+          {/* Gölgeli büyük pati arka plan */}
+          <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 drop-shadow-2xl z-0" width="340" height="340" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="170" cy="220" rx="90" ry="60" fill="#fff"/>
+            <ellipse cx="80" cy="120" rx="32" ry="44" fill="#fff"/>
+            <ellipse cx="170" cy="80" rx="32" ry="44" fill="#fff"/>
+            <ellipse cx="260" cy="120" rx="32" ry="44" fill="#fff"/>
+            <ellipse cx="120" cy="180" rx="20" ry="14" fill="#fff"/>
+            <ellipse cx="220" cy="180" rx="20" ry="14" fill="#fff"/>
+          </svg>
+          {/* Logo ve şirket ismi pati ikonunun üstünde, ortalanmış */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
+            <img src={logo} alt="Logo" className="w-20 h-20 mb-2 drop-shadow-lg" />
+            <span className="text-white text-2xl font-bold tracking-widest">VETPACK</span>
+          </div>
+          {/* FunFacts sol panelin altında ortalanmış ve sabit kutuda */}
+          <div className="w-full flex justify-center items-end z-10 absolute bottom-8 left-0">
+            <div className="bg-white bg-opacity-80 rounded-2xl shadow-xl px-8 py-5 w-full max-w-2xl h-[120px] flex items-start justify-start border border-[#d68f13]/30 backdrop-blur-md mx-8">
+              <FunFacts />
             </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Şifre
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Şifrenizi girin"
-                required
-              />
+          </div>
+          {/* Dalga SVG */}
+          <svg className="absolute bottom-0 left-0 w-full h-40" viewBox="0 0 500 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 40 Q250 120 500 40 L500 80 L0 80 Z" fill="#fff" fillOpacity="0.2" />
+            <path d="M0 60 Q250 100 500 60 L500 80 L0 80 Z" fill="#fff" fillOpacity="0.1" />
+          </svg>
+        </div>
+        {/* Sağ panel: Doktor girişi formu */}
+        <div className="flex flex-col justify-center items-center w-full md:w-1/2 bg-white relative z-10">
+          <div className="w-full max-w-md p-8 rounded-2xl shadow-2xl border border-gray-100">
+            <div className="flex flex-row items-center justify-center mb-6 gap-2">
+              {/* Doktor ikonu */}
+              <svg className="w-8 h-8 text-[#d68f13]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+              <h2 className="text-xl font-bold text-[#d68f13] mb-0">Doktor Girişi</h2>
             </div>
-            
-            {message && (
-              <div className={`p-4 rounded-lg ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                {message}
+            <p className="text-gray-500 text-center text-base mb-6">Devam etmek için hesabınıza giriş yapın</p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] bg-gray-50 placeholder-gray-400 text-base"
+                  placeholder="E-posta"
+                  required
+                />
               </div>
-            )}
-            
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
-            >
-              Giriş Yap
-            </button>
-          </form>
+              <div>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] bg-gray-50 placeholder-gray-400 text-base"
+                  placeholder="Şifre"
+                  required
+                />
+                <div className="text-right mt-1">
+                  <a href="#" className="text-xs text-[#d68f13] hover:underline">Şifrenizi mi unuttunuz?</a>
+                </div>
+              </div>
+              {message && (
+                <div className={`p-4 rounded-lg ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{message}</div>
+              )}
+              <button
+                type="submit"
+                className="w-full bg-[#d68f13] text-white py-2 rounded-lg font-bold text-base shadow-md hover:bg-[#b8770f] transition duration-300"
+              >
+                Giriş Yap
+              </button>
+            </form>
+            <div className="mt-4 text-center">
+              <span className="text-gray-500">Hesabınız yok mu?</span>
+              <a href="#" className="text-[#d68f13] hover:underline ml-1">Kayıt Ol</a>
+            </div>
+            <div className="mt-3 text-center">
+              <Link to="/patient-login" className="text-[#d68f13] hover:text-[#b8770f] font-semibold text-sm">
+                Hasta Girişi için tıklayın
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
