@@ -59,7 +59,8 @@ app.post('/api/doctor-login', async (req, res) => {
       res.status(401).json({ success: false, message: 'E-posta veya şifre hatalı' });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Sunucu hatası' });
+    console.error("DOCTOR LOGIN ERROR:", error);
+    res.status(500).json({ success: false, message: 'Sunucu hatası', error: error.message });
   }
 });
 
@@ -145,14 +146,49 @@ app.post('/api/owners', async (req, res) => {
     // İsim bilgisini ad ve soyad olarak ayır
     const [firstName, ...lastNameArr] = name.trim().split(' ');
     const lastName = lastNameArr.join(' ');
-    // Kimlik no ve telefon no zorunlu değilse NULL olarak ekle
+    // 6 haneli rastgele şifre oluştur
+    const password = Math.floor(100000 + Math.random() * 900000).toString();
     const [result] = await db.query(
-      'INSERT INTO Owner (FName, LName, Email, Password, Phone, Address) VALUES (?, ?, ?, ?, ?, ?)',
-      [firstName, lastName, email, identityNo, phoneNo, address]
+      'INSERT INTO Owner (FName, LName, Email, Password, Phone, Address, NationalID) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [firstName, lastName, email, password, phoneNo, address, identityNo]
+    );
+    res.json({ success: true, id: result.insertId, password });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Müşteri eklenemedi' });
+  }
+});
+
+// Tüm müşterileri dönen endpoint
+app.get('/api/owners', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT OwnerID, FName, LName FROM Owner');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Müşteriler getirilemedi' });
+  }
+});
+
+// Tüm hayvan tür ve ırklarını dönen endpoint
+app.get('/api/animal-types', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT AnimalTypeID, Species, Breed FROM AnimalType');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Hayvan türleri getirilemedi' });
+  }
+});
+
+// Yeni hayvan ekleme endpointi
+app.post('/api/animals', async (req, res) => {
+  const { ownerId, animalTypeId, name, gender, dateOfBirth, weight, color, passportNumber } = req.body;
+  try {
+    const [result] = await db.query(
+      'INSERT INTO Animal (OwnerID, AnimalTypeID, Name, Gender, DateOfBirth, Weight, Color, PassportNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [ownerId, animalTypeId, name, gender, dateOfBirth, weight, color, passportNumber]
     );
     res.json({ success: true, id: result.insertId });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Müşteri eklenemedi' });
+    res.status(500).json({ success: false, message: 'Hayvan eklenemedi', error: error.message });
   }
 });
 

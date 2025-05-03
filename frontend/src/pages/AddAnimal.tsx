@@ -1,18 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const AddAnimal: React.FC = () => {
   // Örnek veriler (ileride veritabanından gelecek)
-  const animalTypes = ['Kedi', 'Köpek'];
-  const breeds = {
-    'Kedi': ['Van Kedisi', 'Tekir', 'Sarman', 'British Shorthair'],
-    'Köpek': ['Golden Retriever', 'Labrador', 'Pomeranian', 'Pitbull']
-  };
   const genders = ['Erkek', 'Dişi'];
   const allergies = ['Polen', 'Tavuk Eti', 'Süt', 'Yok'];
 
+  const [owners, setOwners] = useState<{ OwnerID: number, FName: string, LName: string }[]>([]);
   const [formData, setFormData] = useState({
-    customerName: '',
+    ownerId: '',
     animalName: '',
     passportNo: '',
     type: '',
@@ -23,6 +19,18 @@ const AddAnimal: React.FC = () => {
     weight: '',
     allergies: ''
   });
+  const [animalTypes, setAnimalTypes] = useState<{ AnimalTypeID: number, Species: string, Breed: string }[]>([]);
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/owners')
+      .then(res => res.json())
+      .then(data => setOwners(data));
+    fetch('http://localhost:5000/api/animal-types')
+      .then(res => res.json())
+      .then(data => setAnimalTypes(data));
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -32,10 +40,53 @@ const AddAnimal: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Form verilerini işle (ileride API'ye gönderilecek)
-    console.log('Form verileri:', formData);
+    setMessage('');
+    setIsError(false);
+    // AnimalTypeID bul
+    const selectedType = animalTypes.find(
+      t => t.Species === formData.type && t.Breed === formData.breed
+    );
+    if (!selectedType) {
+      setMessage('Tür ve ırk eşleşmesi bulunamadı!');
+      setIsError(true);
+      return;
+    }
+    // Yaştan doğum tarihi hesapla
+    const age = parseInt(formData.age);
+    const today = new Date();
+    const birthYear = today.getFullYear() - age;
+    const dateOfBirth = `${birthYear}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`;
+    const payload = {
+      ownerId: formData.ownerId,
+      animalTypeId: selectedType.AnimalTypeID,
+      name: formData.animalName,
+      gender: formData.gender,
+      dateOfBirth,
+      weight: formData.weight,
+      color: formData.color,
+      passportNumber: formData.passportNo
+    };
+    try {
+      const response = await fetch('http://localhost:5000/api/animals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage('Hayvan başarıyla eklendi!');
+        setIsError(false);
+        setFormData({ ownerId: '', animalName: '', passportNo: '', type: '', breed: '', age: '', gender: '', color: '', weight: '', allergies: '' });
+      } else {
+        setMessage(data.message || 'Hayvan eklenemedi!');
+        setIsError(true);
+      }
+    } catch (err) {
+      setMessage('Sunucuya bağlanılamadı!');
+      setIsError(true);
+    }
   };
 
   return (
@@ -55,18 +106,24 @@ const AddAnimal: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
-                Müşteri İsmi
+              <label htmlFor="ownerId" className="block text-sm font-medium text-gray-700 mb-1">
+                Müşteri Seç
               </label>
-              <input
-                type="text"
-                id="customerName"
-                name="customerName"
-                value={formData.customerName}
+              <select
+                id="ownerId"
+                name="ownerId"
+                value={formData.ownerId}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
-              />
+              >
+                <option value="">Müşteri seçiniz</option>
+                {owners.map(owner => (
+                  <option key={owner.OwnerID} value={owner.OwnerID}>
+                    {owner.FName} {owner.LName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -112,7 +169,7 @@ const AddAnimal: React.FC = () => {
                 required
               >
                 <option value="">Seçiniz</option>
-                {animalTypes.map(type => (
+                {Array.from(new Set(animalTypes.map(t => t.Species))).map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
@@ -132,8 +189,8 @@ const AddAnimal: React.FC = () => {
                 disabled={!formData.type}
               >
                 <option value="">Seçiniz</option>
-                {formData.type && breeds[formData.type as keyof typeof breeds].map(breed => (
-                  <option key={breed} value={breed}>{breed}</option>
+                {formData.type && animalTypes.filter(t => t.Species === formData.type).map(t => (
+                  <option key={t.Breed} value={t.Breed}>{t.Breed}</option>
                 ))}
               </select>
             </div>

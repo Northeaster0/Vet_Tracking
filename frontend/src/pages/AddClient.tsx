@@ -32,7 +32,7 @@ const AddClient: React.FC = () => {
       });
       const data = await response.json();
       if (data.success) {
-        setMessage('Müşteri başarıyla eklendi!');
+        setMessage(`Müşteri başarıyla eklendi! Şifreniz: ${data.password}`);
         setIsError(false);
         setFormData({ identityNo: '', name: '', phoneNo: '', email: '', address: '' });
       } else {
