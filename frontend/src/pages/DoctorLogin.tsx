@@ -8,18 +8,30 @@ const DoctorLogin: React.FC = () => {
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (username === 'ali' && password === '123') {
-      setMessage('Giriş Başarılı!');
-      setIsError(false);
-      // 2 saniye sonra AnimalProcess sayfasına yönlendir
-      setTimeout(() => {
-        navigate('/animal-process');
-      }, 2000);
-    } else {
-      setMessage('Giriş Başarısız. Lütfen tekrar deneyin.');
+    setMessage('');
+    setIsError(false);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/doctor-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: username, password }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage('Giriş Başarılı!');
+        setIsError(false);
+        setTimeout(() => {
+          navigate('/animal-process');
+        }, 1000);
+      } else {
+        setMessage(data.message || 'Giriş Başarısız. Lütfen tekrar deneyin.');
+        setIsError(true);
+      }
+    } catch (err) {
+      setMessage('Sunucuya bağlanılamadı.');
       setIsError(true);
     }
   };

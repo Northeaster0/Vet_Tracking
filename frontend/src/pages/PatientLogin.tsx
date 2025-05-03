@@ -8,16 +8,28 @@ const PatientLogin: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'ali' && password === '123') {
-      setError('');
-      setSuccess(true);
-      setTimeout(() => {
-        navigate('/patientDashboard');
-      }, 2000);
-    } else {
-      setError('Kullanıcı adı veya şifre hatalı!');
+    setError('');
+    setSuccess(false);
+    try {
+      const response = await fetch('http://localhost:5000/api/patient-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: username, password }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccess(true);
+        setTimeout(() => {
+          navigate('/patientDashboard');
+        }, 1000);
+      } else {
+        setError(data.message || 'Kullanıcı adı veya şifre hatalı!');
+        setSuccess(false);
+      }
+    } catch (err) {
+      setError('Sunucuya bağlanılamadı!');
       setSuccess(false);
     }
   };

@@ -46,6 +46,116 @@ app.post('/api/reports', async (req, res) => {
   }
 });
 
+app.post('/api/doctor-login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const [rows] = await db.query(
+      'SELECT * FROM Veterinary WHERE Email = ? AND Password = ?',
+      [email, password]
+    );
+    if (rows.length > 0) {
+      res.json({ success: true, doctor: rows[0] });
+    } else {
+      res.status(401).json({ success: false, message: 'E-posta veya şifre hatalı' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Sunucu hatası' });
+  }
+});
+
+app.post('/api/patient-login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const [rows] = await db.query(
+      'SELECT * FROM Owner WHERE Email = ? AND Password = ?',
+      [email, password]
+    );
+    if (rows.length > 0) {
+      res.json({ success: true, owner: rows[0] });
+    } else {
+      res.status(401).json({ success: false, message: 'Kullanıcı adı veya şifre hatalı!' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Sunucu hatası' });
+  }
+});
+
+app.get('/api/medicine-stocks', async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT ms.MedicineStockID as id, m.Name as name, ms.Quantity as quantity
+      FROM MedicineStock ms
+      JOIN Medicine m ON ms.MedicineID = m.MedicineID
+    `);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'İlaç stokları getirilemedi' });
+  }
+});
+
+app.post('/api/medicine-stocks/add', async (req, res) => {
+  const { medicineId, quantity } = req.body;
+  try {
+    // Önce bu ilacın MedicineStock kaydı var mı kontrol et
+    const [rows] = await db.query('SELECT * FROM MedicineStock WHERE MedicineID = ?', [medicineId]);
+    if (rows.length > 0) {
+      // Varsa miktarı artır
+      await db.query(
+        'UPDATE MedicineStock SET Quantity = Quantity + ? WHERE MedicineID = ?',
+        [quantity, medicineId]
+      );
+    } else {
+      // Yoksa yeni kayıt ekle (örnek olarak ClinicID=1, LastUpdated=NULL, BatchNumber=NULL, ExpiryDate=NULL)
+      await db.query(
+        'INSERT INTO MedicineStock (ClinicID, MedicineID, Quantity) VALUES (?, ?, ?)',
+        [1, medicineId, quantity]
+      );
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Stok eklenemedi' });
+  }
+});
+
+app.post('/api/medicine-stocks/reduce', async (req, res) => {
+  const { medicineId, quantity } = req.body;
+  try {
+    const [result] = await db.query(
+      'UPDATE MedicineStock SET Quantity = GREATEST(Quantity - ?, 0) WHERE MedicineID = ?',
+      [quantity, medicineId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Stok eksiltilemedi' });
+  }
+});
+
+app.get('/api/medicines', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT MedicineID as id, Name as name FROM Medicine');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'İlaçlar getirilemedi' });
+  }
+});
+
+app.post('/api/owners', async (req, res) => {
+  const { identityNo, name, phoneNo, email, address } = req.body;
+  try {
+    // İsim bilgisini ad ve soyad olarak ayır
+    const [firstName, ...lastNameArr] = name.trim().split(' ');
+    const lastName = lastNameArr.join(' ');
+    // Kimlik no ve telefon no zorunlu değilse NULL olarak ekle
+    const [result] = await db.query(
+      'INSERT INTO Owner (FName, LName, Email, Password, Phone, Address) VALUES (?, ?, ?, ?, ?, ?)',
+      [firstName, lastName, email, identityNo, phoneNo, address]
+    );
+    res.json({ success: true, id: result.insertId });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Müşteri eklenemedi' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server ${port} portunda çalışıyor`);
 }); 

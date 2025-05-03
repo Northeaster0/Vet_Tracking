@@ -9,6 +9,8 @@ const AddClient: React.FC = () => {
     email: '',
     address: ''
   });
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -18,10 +20,29 @@ const AddClient: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Form verilerini işle (ileride API'ye gönderilecek)
-    console.log('Form verileri:', formData);
+    setMessage('');
+    setIsError(false);
+    try {
+      const response = await fetch('http://localhost:5000/api/owners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage('Müşteri başarıyla eklendi!');
+        setIsError(false);
+        setFormData({ identityNo: '', name: '', phoneNo: '', email: '', address: '' });
+      } else {
+        setMessage(data.message || 'Müşteri eklenemedi!');
+        setIsError(true);
+      }
+    } catch (err) {
+      setMessage('Sunucuya bağlanılamadı!');
+      setIsError(true);
+    }
   };
 
   return (
@@ -118,6 +139,10 @@ const AddClient: React.FC = () => {
                 required
               />
             </div>
+
+            {message && (
+              <div className={`p-4 rounded-lg text-center ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{message}</div>
+            )}
 
             <button
               type="submit"
