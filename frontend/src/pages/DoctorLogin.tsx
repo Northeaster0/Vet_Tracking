@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import FunFacts from '../components/FunFacts';
 
 const DoctorLogin: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -38,8 +39,9 @@ const DoctorLogin: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+      <div className="max-w-md w-full">
+        <FunFacts />
+        <div className="bg-white p-8 rounded-lg shadow-md">
           <Link 
             to="/" 
             className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
