@@ -192,6 +192,16 @@ app.post('/api/animals', async (req, res) => {
   }
 });
 
+app.get('/api/funfacts', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM FunFacts ORDER BY RAND()');
+    res.json(rows);
+  } catch (error) {
+    console.error('Funfacts getirme hatası:', error);
+    res.status(500).json({ error: 'Funfacts getirilemedi' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server ${port} portunda çalışıyor`);
 }); 
