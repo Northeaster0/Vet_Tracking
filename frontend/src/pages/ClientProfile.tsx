@@ -48,7 +48,7 @@ const ClientProfile: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="max-w-2xl mx-auto">
         <Link 
-          to="/patientDashboard" 
+          to="/patient-dashboard" 
           className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
         >
           ←

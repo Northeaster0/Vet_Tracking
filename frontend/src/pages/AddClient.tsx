@@ -46,107 +46,124 @@ const AddClient: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-2xl mx-auto">
-        <Link 
-          to="/animal-process" 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
-
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Yeni Müşteri Ekle
-          </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-2xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
             <div>
-              <label htmlFor="identityNo" className="block text-sm font-medium text-gray-700 mb-1">
-                Kimlik No
-              </label>
-              <input
-                type="text"
-                id="identityNo"
-                name="identityNo"
-                value={formData.identityNo}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-                pattern="[0-9]{11}"
-                title="11 haneli kimlik numarası giriniz"
-              />
+              <h2 className="text-2xl font-bold text-gray-800">Yeni Müşteri Ekle</h2>
+              <p className="text-sm text-gray-500">Sisteme yeni müşteri kaydı oluşturun</p>
             </div>
+          </div>
+          <Link
+            to="/animal-process"
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg"
+          >
+            Geri Dön
+          </Link>
+        </div>
 
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                İsim
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
+        {/* Message Display */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-xl ${isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+            {message}
+          </div>
+        )}
+
+        {/* Form Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              {/* Identity Number */}
+              <div>
+                <label htmlFor="identityNo" className="block text-sm font-medium text-gray-700 mb-2">
+                  Kimlik No
+                </label>
+                <input
+                  type="text"
+                  id="identityNo"
+                  name="identityNo"
+                  value={formData.identityNo}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
+                  required
+                  pattern="[0-9]{11}"
+                  title="11 haneli kimlik numarası giriniz"
+                />
+              </div>
+
+              {/* Name */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  İsim
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
+                  required
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label htmlFor="phoneNo" className="block text-sm font-medium text-gray-700 mb-2">
+                  Telefon No
+                </label>
+                <input
+                  type="tel"
+                  id="phoneNo"
+                  name="phoneNo"
+                  value={formData.phoneNo}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
+                  required
+                  pattern="[0-9]{10}"
+                  title="10 haneli telefon numarası giriniz"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Mail Adresi
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
+                  required
+                />
+              </div>
+
+              {/* Address */}
+              <div>
+                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                  Adres
+                </label>
+                <textarea
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
+                  required
+                />
+              </div>
             </div>
-
-            <div>
-              <label htmlFor="phoneNo" className="block text-sm font-medium text-gray-700 mb-1">
-                Telefon No
-              </label>
-              <input
-                type="tel"
-                id="phoneNo"
-                name="phoneNo"
-                value={formData.phoneNo}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-                pattern="[0-9]{10}"
-                title="10 haneli telefon numarası giriniz"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Mail Adresi
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                Adres
-              </label>
-              <textarea
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            {message && (
-              <div className={`p-4 rounded-lg text-center ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{message}</div>
-            )}
 
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-300 mt-6"
+              className="w-full bg-[#d68f13] text-white py-3 px-4 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-[1.02] shadow-lg mt-6 font-semibold"
             >
               Kaydet
             </button>
@@ -157,4 +174,4 @@ const AddClient: React.FC = () => {
   );
 };
 
-export default AddClient; 
+export default AddClient;

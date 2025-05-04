@@ -9,14 +9,6 @@ interface Vaccine {
   VaccineID: number;
 }
 
-interface AvailableVaccine {
-  VaccineID: number;
-  Name: string;
-  Type: string;
-  ApplicationMethod: string;
-  Description: string;
-}
-
 interface VaccineListItem {
   id: number;
   name: string;
@@ -26,18 +18,16 @@ const DoctorVaccineStatus: React.FC = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
-
   const [doneVaccines, setDoneVaccines] = useState<Vaccine[]>([]);
   const [vaccineList, setVaccineList] = useState<VaccineListItem[]>([]);
   const [selectedVaccineId, setSelectedVaccineId] = useState('');
   const [message, setMessage] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
 
   const fetchVaccines = async () => {
     if (!animalId) return;
-    // Yapılan aşılar
     const done = await fetch(`http://localhost:5000/api/animal-vaccines/${animalId}`).then(res => res.json());
     setDoneVaccines(done);
-    // Tüm aşılar
     const allVaccines = await fetch('http://localhost:5000/api/vaccines').then(res => res.json());
     setVaccineList(allVaccines.map((v: any) => ({ id: v.id ?? v.VaccineID, name: v.name ?? v.Name })));
     setSelectedVaccineId('');
@@ -45,7 +35,6 @@ const DoctorVaccineStatus: React.FC = () => {
 
   useEffect(() => {
     fetchVaccines();
-    // eslint-disable-next-line
   }, [animalId]);
 
   const handleAddVaccine = async () => {
@@ -57,11 +46,12 @@ const DoctorVaccineStatus: React.FC = () => {
     });
     const data = await res.json();
     if (data.success) {
-      setMessage('Aşı başarıyla eklendi!');
+      setMessage('✅ Aşı başarıyla eklendi!');
       fetchVaccines();
     } else {
-      setMessage(data.error || 'Aşı eklenemedi!');
+      setMessage('❌ ' + (data.error || 'Aşı eklenemedi!'));
     }
+    setTimeout(() => setMessage(''), 3000);
   };
 
   const handleDeleteVaccine = async (vaccineForAnimalId: number) => {
@@ -70,65 +60,111 @@ const DoctorVaccineStatus: React.FC = () => {
     });
     const data = await res.json();
     if (data.success) {
-      setMessage('Aşı kaydı silindi!');
+      setMessage('✅ Aşı kaydı silindi!');
       fetchVaccines();
     } else {
-      setMessage(data.error || 'Aşı kaydı silinemedi!');
+      setMessage('❌ ' + (data.error || 'Aşı kaydı silinemedi!'));
     }
+    setShowDeleteConfirm(null);
+    setTimeout(() => setMessage(''), 3000);
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-4xl mx-auto">
-        <Link 
-          to={`/patientAcception?animalId=${animalId}`} 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
 
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">Aşı Yönetimi</h2>
+              <p className="text-sm text-gray-500">Hastanın aşı kayıtlarını görüntüleyin ve yönetin</p>
+            </div>
+          </div>
+          <Link
+            to={`/patientAcception?animalId=${animalId}`}
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
+        </div>
+
+        {/* Message Display */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-xl ${message.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {message}
+          </div>
+        )}
+
+        {/* Vaccines List */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <span className="mr-2">💉</span>
             Yapılan Aşılar
           </h2>
           <div className="space-y-4">
             {doneVaccines.length === 0 ? (
-              <div className="text-gray-500">Bu hayvana henüz aşı yapılmamış.</div>
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-lg">Bu hayvana henüz aşı yapılmamış. 🐾</p>
+              </div>
             ) : (
               doneVaccines.map((vaccine) => (
-                <div key={vaccine.VaccineForAnimalID} className="border rounded-lg p-4 hover:shadow-md transition duration-300 flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">{vaccine.Name}</h3>
-                    <p className="text-sm text-gray-600">Tip: {vaccine.Type}</p>
-                    <p className="text-sm text-gray-600">Açıklama: {vaccine.Description}</p>
+                <div 
+                  key={vaccine.VaccineForAnimalID} 
+                  className="group bg-white rounded-xl shadow-md hover:shadow-lg p-6 border border-gray-100 hover:border-[#d68f13]/30 transition duration-300"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-start space-x-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#d68f13] transition duration-300">
+                          {vaccine.Name}
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                          <div>
+                            <p className="text-sm text-gray-500">Tip</p>
+                            <p className="text-gray-700">{vaccine.Type || '-'}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Açıklama</p>
+                            <p className="text-gray-700">{vaccine.Description || '-'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowDeleteConfirm(vaccine.VaccineForAnimalID)}
+                      className="text-gray-400 hover:text-[#d68f13] transition duration-300 p-2"
+                      title="Aşıyı Sil"
+                    >
+                      🗑️
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDeleteVaccine(vaccine.VaccineForAnimalID)}
-                    className="ml-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
-                  >
-                    Sil
-                  </button>
                 </div>
               ))
             )}
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h3 className="text-xl font-bold text-blue-900 mb-4">
+        {/* Add Vaccine Form */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <span className="mr-2">➕</span>
             Yeni Aşı Ekle
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Aşı Seçiniz
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Aşı Seçiniz 💉
               </label>
               <select
                 value={selectedVaccineId}
                 onChange={e => setSelectedVaccineId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
               >
-                <option value="">Aşı seçin</option>
+                <option value="">Aşı seçin...</option>
                 {vaccineList.map((vaccine) => (
                   <option key={vaccine.id} value={vaccine.id}>
                     {vaccine.name}
@@ -138,17 +174,46 @@ const DoctorVaccineStatus: React.FC = () => {
             </div>
             <button
               onClick={handleAddVaccine}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+              className="w-full bg-[#d68f13] text-white py-3 px-4 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-[1.02] shadow-lg flex items-center justify-center space-x-2 disabled:opacity-50"
               disabled={!selectedVaccineId}
             >
-              Aşı Ekle
+              <span>💉</span>
+              <span>Aşı Ekle</span>
             </button>
-            {message && <div className="mt-2 text-center text-blue-900 font-semibold">{message}</div>}
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[#d68f13]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">⚠️</span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Aşı Kaydını Silmek İstiyor Musunuz?</h3>
+                <p className="text-gray-600 mb-6">Bu işlem geri alınamaz.</p>
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={() => setShowDeleteConfirm(null)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition duration-300"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={() => handleDeleteVaccine(showDeleteConfirm)}
+                    className="px-4 py-2 bg-[#d68f13] text-white rounded-lg hover:bg-[#b8770f] transition duration-300"
+                  >
+                    Sil
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default DoctorVaccineStatus; 
+export default DoctorVaccineStatus;

@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-// Örnek veriler (ileride API'den gelecek)
-// const medicines = [
-//   { id: 1, name: 'Antibiyotik X' },
-//   { id: 2, name: 'Vitamin Y' },
-//   { id: 3, name: 'Steroid Z' }
-// ];
-
 const applicationMethods = [
   { id: 1, name: 'Ağızdan' },
   { id: 2, name: 'Deri altı' },
@@ -34,6 +27,8 @@ const AddPrescriptions: React.FC = () => {
   const [diseases, setDiseases] = useState<{id:number, name:string, description:string, category:string}[]>([]);
   const [medicines, setMedicines] = useState<{id:number, name:string}[]>([]);
   const [animal, setAnimal] = useState<any>(null);
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -72,7 +67,7 @@ const AddPrescriptions: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const doctor = JSON.parse(localStorage.getItem('doctor') || '{}');
-    const VeterinaryID = doctor.VeterinaryID || doctor.id || 1; // fallback
+    const VeterinaryID = doctor.VeterinaryID || doctor.id || 1;
     const Frequency = `${formData.frequencyType} ${formData.frequencyCount} kez`;
     const payload = {
       VeterinaryID,
@@ -83,6 +78,7 @@ const AddPrescriptions: React.FC = () => {
       medicineId: Number(formData.medicineId),
       Disease: formData.disease
     };
+    
     try {
       const response = await fetch('http://localhost:5000/api/prescriptions', {
         method: 'POST',
@@ -91,7 +87,8 @@ const AddPrescriptions: React.FC = () => {
       });
       const data = await response.json();
       if (data.success) {
-        alert('Reçete başarıyla eklendi ve stok güncellendi!');
+        setMessage('Reçete başarıyla eklendi ve stok güncellendi!');
+        setIsError(false);
         setFormData({
           disease: '',
           medicineId: '',
@@ -102,58 +99,74 @@ const AddPrescriptions: React.FC = () => {
           duration: ''
         });
       } else {
-        alert(data.message || 'Reçete eklenemedi!');
+        setMessage(data.message || 'Reçete eklenemedi!');
+        setIsError(true);
       }
     } catch (err) {
-      alert('Sunucuya bağlanılamadı!');
+      setMessage('Sunucuya bağlanılamadı!');
+      setIsError(true);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-2xl mx-auto">
-        <Link 
-          to={`/patientAcception?animalId=${animalId}`} 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-2xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">Reçete Oluştur</h2>
+              <p className="text-sm text-gray-500">Yeni reçete bilgilerini girin</p>
+            </div>
+          </div>
+          <Link
+            to={`/patientAcception?animalId=${animalId}`}
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg"
+          >
+            Geri Dön
+          </Link>
+        </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Reçete Ekle
-          </h2>
+        {/* Message Display */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-xl ${isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+            {message}
+          </div>
+        )}
 
+        {/* Form Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Otomatik doldurulan bilgiler */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Animal Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Irk
                 </label>
                 <input
                   type="text"
                   value={animal ? animal.Breed : ''}
                   disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tür
                 </label>
                 <input
                   type="text"
                   value={animal ? animal.Type : ''}
                   disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50"
                 />
               </div>
             </div>
 
-            {/* Hastalık seçimi */}
+            {/* Disease Selection */}
             <div>
-              <label htmlFor="disease" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="disease" className="block text-sm font-medium text-gray-700 mb-2">
                 Hastalık İsmi
               </label>
               <select
@@ -161,7 +174,7 @@ const AddPrescriptions: React.FC = () => {
                 name="disease"
                 value={formData.disease}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                 required
               >
                 <option value="">Seçiniz</option>
@@ -173,9 +186,9 @@ const AddPrescriptions: React.FC = () => {
               </select>
             </div>
 
-            {/* İlaç seçimi */}
+            {/* Medicine Selection */}
             <div>
-              <label htmlFor="medicine" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="medicine" className="block text-sm font-medium text-gray-700 mb-2">
                 İlaç İsmi
               </label>
               <select
@@ -183,7 +196,7 @@ const AddPrescriptions: React.FC = () => {
                 name="medicineId"
                 value={formData.medicineId}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                 required
               >
                 <option value="">Seçiniz</option>
@@ -195,9 +208,9 @@ const AddPrescriptions: React.FC = () => {
               </select>
             </div>
 
-            {/* Doz */}
+            {/* Dose */}
             <div>
-              <label htmlFor="dose" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="dose" className="block text-sm font-medium text-gray-700 mb-2">
                 Doz
               </label>
               <input
@@ -207,14 +220,14 @@ const AddPrescriptions: React.FC = () => {
                 value={formData.dose}
                 onChange={handleChange}
                 placeholder="Örn: 1 tablet"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                 required
               />
             </div>
 
-            {/* Uygulama şekli */}
+            {/* Application Method */}
             <div>
-              <label htmlFor="applicationMethod" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="applicationMethod" className="block text-sm font-medium text-gray-700 mb-2">
                 Uygulama Şekli
               </label>
               <select
@@ -222,7 +235,7 @@ const AddPrescriptions: React.FC = () => {
                 name="applicationMethod"
                 value={formData.applicationMethod}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                 required
               >
                 <option value="">Seçiniz</option>
@@ -234,10 +247,10 @@ const AddPrescriptions: React.FC = () => {
               </select>
             </div>
 
-            {/* Uygulama sıklığı */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Frequency Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label htmlFor="frequencyType" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="frequencyType" className="block text-sm font-medium text-gray-700 mb-2">
                   Sıklık
                 </label>
                 <select
@@ -245,7 +258,7 @@ const AddPrescriptions: React.FC = () => {
                   name="frequencyType"
                   value={formData.frequencyType}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 >
                   <option value="">Seçiniz</option>
@@ -257,7 +270,7 @@ const AddPrescriptions: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label htmlFor="frequencyCount" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="frequencyCount" className="block text-sm font-medium text-gray-700 mb-2">
                   Kaç Kez
                 </label>
                 <input
@@ -267,13 +280,13 @@ const AddPrescriptions: React.FC = () => {
                   value={formData.frequencyCount}
                   onChange={handleChange}
                   min="1"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-1">
-                  Tedavi Süresi
+                <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
+                  Tedavi Süresi (Gün)
                 </label>
                 <input
                   type="number"
@@ -282,7 +295,7 @@ const AddPrescriptions: React.FC = () => {
                   value={formData.duration}
                   onChange={handleChange}
                   min="1"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
@@ -290,9 +303,9 @@ const AddPrescriptions: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 mt-6"
+              className="w-full bg-[#d68f13] text-white py-3 px-4 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-[1.02] shadow-lg mt-6 font-semibold"
             >
-              Kaydet
+              Reçeteyi Kaydet
             </button>
           </form>
         </div>
@@ -301,4 +314,4 @@ const AddPrescriptions: React.FC = () => {
   );
 };
 
-export default AddPrescriptions; 
+export default AddPrescriptions;
