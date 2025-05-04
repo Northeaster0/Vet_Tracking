@@ -22,19 +22,13 @@ import PatientVaccineStatus from './pages/PatientVaccineStatus';
 import WhatsWrong from './pages/WhatsWrong';
 import FindAnimals from './pages/FindAnimals';
 import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
-<<<<<<< HEAD
 import Operations from './pages/Operations';
 import PatientReports from './pages/PatientReports';
 import logo from './logo.svg';
 import FunFacts from './components/FunFacts';
 import Anamnezs from './pages/Anamnezs';
-=======
-import PatientRaports from './pages/PatientRaports';
-import logo from './logo.svg';
-import FunFacts from './components/FunFacts';
-import Operations from './pages/Operations';
 
->>>>>>> bd65051256f3ed20d91c13c5719427b4ab203523
+
 
 function App() {
   return (
