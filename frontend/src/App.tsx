@@ -23,8 +23,12 @@ import WhatsWrong from './pages/WhatsWrong';
 import FindAnimals from './pages/FindAnimals';
 import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
 import PatientRaports from './pages/PatientRaports';
+<<<<<<< HEAD
 import logo from './logo.svg';
 import FunFacts from './components/FunFacts';
+=======
+import Operations from './pages/Operations';
+>>>>>>> 230cee3726049b97658fe0ec6056e16f1a03852e
 
 function App() {
   return (
@@ -109,6 +113,7 @@ function App() {
         <Route path="/findAnimals" element={<FindAnimals />} />
         <Route path="/doctorVaccineStatus" element={<DoctorVaccineStatus />} />
         <Route path="/patient-raports" element={<PatientRaports />} />
+        <Route path="/operations" element={<Operations />} />
       </Routes>
     </Router>
   );

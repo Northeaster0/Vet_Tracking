@@ -1,20 +1,23 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const PatientAcception: React.FC = () => {
-  // Statik hayvan bilgileri (ileride veritabanından gelecek)
-  const animalInfo = {
-    ownerName: 'Ahmet Yılmaz',
-    animalName: 'Pamuk',
-    passportNo: 'TR123456789',
-    age: '3',
-    type: 'Kedi',
-    breed: 'Tekir',
-    gender: 'Dişi',
-    weight: '4.2 kg',
-    color: 'Beyaz',
-    allergies: 'Yok'
-  };
+  const [animalInfo, setAnimalInfo] = useState<any>(null);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const animalId = params.get('animalId');
+
+  useEffect(() => {
+    if (!animalId) return;
+    fetch('http://localhost:5000/api/animals/with-details')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find((a: any) => String(a.AnimalID) === String(animalId));
+        setAnimalInfo(found);
+      });
+  }, [animalId]);
+
+  if (!animalInfo) return <div>Yükleniyor...</div>;
 
   const actionButtons = [
     { title: 'Randevu Al', path: '/addAppointment', color: 'bg-blue-600 hover:bg-blue-700' },
@@ -23,7 +26,8 @@ const PatientAcception: React.FC = () => {
     { title: 'Reçete Ekle', path: '/addPrescriptions', color: 'bg-yellow-600 hover:bg-yellow-700' },
     { title: 'Bilgileri Düzenle', path: '/editPatientInfo', color: 'bg-indigo-600 hover:bg-indigo-700' },
     { title: 'Aşı', path: '/doctorVaccineStatus', color: 'bg-red-600 hover:bg-red-700' },
-    { title: 'Raporlarım', path: '/patient-raports', color: 'bg-pink-600 hover:bg-pink-700' }
+    { title: 'Raporlarım', path: '/patient-raports', color: 'bg-pink-600 hover:bg-pink-700' },
+    { title: 'Operasyonlar', path: `/operations?animalId=${animalInfo.AnimalID}`, color: 'bg-gray-600 hover:bg-gray-700' }
   ];
 
   return (
@@ -38,42 +42,32 @@ const PatientAcception: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-blue-900 mb-4">
-            Hayvan Bilgileri
+            {animalInfo.animalName}
           </h2>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Sahip İsmi:</span> {animalInfo.ownerName}
+                <span className="font-semibold text-gray-800">Sahip:</span> {animalInfo.ownerName}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Hayvan İsmi:</span> {animalInfo.animalName}
+                <span className="font-semibold text-gray-800">Tür:</span> {animalInfo.type}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Pasaport No:</span> {animalInfo.passportNo}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Yaşı:</span> {animalInfo.age}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Türü:</span> {animalInfo.type}
+                <span className="font-semibold text-gray-800">Irk:</span> {animalInfo.breed}
               </p>
             </div>
             <div className="space-y-2">
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Irkı:</span> {animalInfo.breed}
+                <span className="font-semibold text-gray-800">Pasaport No:</span> {animalInfo.passportNo}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Cinsiyeti:</span> {animalInfo.gender}
+                <span className="font-semibold text-gray-800">Yaş:</span> {animalInfo.age}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Kilosu:</span> {animalInfo.weight}
+                <span className="font-semibold text-gray-800">Cinsiyet:</span> {animalInfo.gender}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Rengi:</span> {animalInfo.color}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Alerjileri:</span> {animalInfo.allergies}
+                <span className="font-semibold text-gray-800">Kilo:</span> {animalInfo.weight} kg
               </p>
             </div>
           </div>

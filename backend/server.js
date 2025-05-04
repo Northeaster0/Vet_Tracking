@@ -202,6 +202,61 @@ app.get('/api/funfacts', async (req, res) => {
   }
 });
 
+// Hayvan, sahibi ve tür/ırk bilgileriyle birlikte detaylı liste endpointi
+app.get('/api/animals/with-details', async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        a.AnimalID,
+        a.Name as animalName,
+        a.PassportNumber as passportNo,
+        a.Gender as gender,
+        a.Weight as weight,
+        a.Color as color,
+        a.DateOfBirth,
+        o.FName as ownerFName,
+        o.LName as ownerLName,
+        at.Species as type,
+        at.Breed as breed
+      FROM Animal a
+      JOIN Owner o ON a.OwnerID = o.OwnerID
+      JOIN AnimalType at ON a.AnimalTypeID = at.AnimalTypeID
+      ORDER BY a.AnimalID DESC
+    `);
+    // Yaş hesapla ve ownerName birleştir
+    const result = rows.map(row => ({
+      ...row,
+      ownerName: row.ownerFName + ' ' + row.ownerLName,
+      age: row.DateOfBirth ? (new Date().getFullYear() - new Date(row.DateOfBirth).getFullYear()) : '',
+    }));
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Hayvanlar getirilemedi' });
+  }
+});
+
+// Belirli bir hayvanın operasyonlarını getir
+app.get('/api/operations', async (req, res) => {
+  const { animalId } = req.query;
+  try {
+    const [rows] = await db.query('SELECT * FROM Operation WHERE AnimalID = ? ORDER BY CreatedAt DESC', [animalId]);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Operasyonlar getirilemedi' });
+  }
+});
+
+// Yeni operasyon ekle
+app.post('/api/operations', async (req, res) => {
+  const { animalId, description, date } = req.body;
+  try {
+    await db.query('INSERT INTO Operation (AnimalID, OpDetail, CreatedAt) VALUES (?, ?, ?)', [animalId, description, date]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Operasyon eklenemedi', error: error.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server ${port} portunda çalışıyor`);
 }); 
