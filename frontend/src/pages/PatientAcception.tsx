@@ -29,7 +29,7 @@ const PatientAcception: React.FC = () => {
   if (!animalInfo) return <div>Yükleniyor...</div>;
 
   const actionButtons = [
-    { title: 'Randevu Al', path: `/addAppointment?animalId=${animalInfo.AnimalID}`, color: 'bg-blue-600 hover:bg-blue-700' },
+    { title: 'Randevu Oluştur', path: `/addAppointment?animalId=${animalInfo.AnimalID}`, color: 'bg-blue-600 hover:bg-blue-700' },
     { title: 'Radyoloji ve Labaratuvar Sonuçları ', path: `/tests?animalId=${animalInfo.AnimalID}`, color: 'bg-green-600 hover:bg-green-700' },
     { title: 'Geçmiş Reçeteler', path: `/animalHistory?animalId=${animalInfo.AnimalID}`, color: 'bg-purple-600 hover:bg-purple-700' },
     { title: 'Reçete Ekle', path: `/addPrescriptions?animalId=${animalInfo.AnimalID}`, color: 'bg-yellow-600 hover:bg-yellow-700' },

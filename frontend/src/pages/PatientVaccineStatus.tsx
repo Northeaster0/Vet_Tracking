@@ -50,6 +50,23 @@ const vaccineStatus = [
   }
 ];
 
+const staticVaccines = [
+  {
+    id: 1,
+    name: 'Kuduz Aşısı',
+    status: 'Yapıldı',
+    statusColor: 'text-green-600',
+    date: '2024-01-15',
+  },
+  {
+    id: 2,
+    name: 'Parvo Aşısı',
+    status: 'Tarihi Yaklaşıyor',
+    statusColor: 'text-yellow-600',
+    date: '2024-06-01',
+  },
+];
+
 const PatientVaccineStatus: React.FC = () => {
   const [vaccines, setVaccines] = useState<any[]>([]);
   const location = useLocation();
@@ -81,18 +98,17 @@ const PatientVaccineStatus: React.FC = () => {
           </h2>
 
           <div className="space-y-4">
-            {vaccines.length === 0 ? (
-              <p className="text-gray-600">Bu hayvana ait aşı kaydı bulunamadı.</p>
-            ) : (
-              vaccines.map((vaccine) => (
-                <div key={vaccine.VaccineForAnimalID} className="border border-gray-200 rounded-lg p-4 flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-800">{vaccine.Name}</span>
-                  <span className={vaccine.status === 'Yapıldı' ? 'text-green-600 font-bold' : 'text-yellow-600 font-bold'}>
-                    {vaccine.status}
-                  </span>
+            {staticVaccines.map((vaccine) => (
+              <div key={vaccine.id} className="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row md:justify-between md:items-center">
+                <div>
+                  <span className="text-lg font-semibold text-gray-800">{vaccine.name}</span>
+                  <div className="text-sm text-gray-500 mt-1">Tarih: {vaccine.date}</div>
                 </div>
-              ))
-            )}
+                <span className={vaccine.statusColor + ' font-bold mt-2 md:mt-0'}>
+                  {vaccine.status}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

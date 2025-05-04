@@ -177,7 +177,7 @@ app.post('/api/medicine-stocks/reduce', async (req, res) => {
 
 app.get('/api/medicines', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT MedicineID as id, Name as name FROM Medicine');
+    const [rows] = await db.query('SELECT MedicineID as id, Name as name, ActiveSubstance as activeSubstance FROM Medicine');
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: 'İlaçlar getirilemedi' });
@@ -770,6 +770,35 @@ app.get('/api/animals/:animalId/vaccines', async (req, res) => {
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: 'Aşılar getirilemedi' });
+  }
+});
+
+app.post('/api/appointments', async (req, res) => {
+  const { VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status, CreatedAt } = req.body;
+  try {
+    await db.query(
+      'INSERT INTO Appointments (VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status, CreatedAt]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Randevu eklenemedi', error: error.message });
+  }
+});
+
+app.get('/api/appointments', async (req, res) => {
+  const { animalId } = req.query;
+  try {
+    let query = 'SELECT * FROM Appointments';
+    const params = [];
+    if (animalId) {
+      query += ' WHERE AnimalID = ? ORDER BY AppointmentDateTime DESC';
+      params.push(animalId);
+    }
+    const [rows] = await db.query(query, params);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Randevular getirilemedi' });
   }
 });
 

@@ -15,6 +15,7 @@ const PatientDashboard: React.FC = () => {
     { title: 'Reçete Geçmişi', path: '/patientPrescriptionsHistory', color: 'bg-green-600 hover:bg-green-700' },
     { title: 'Radyolojik ve Labaratuvar Sonuçları', path: '/patientTestResults', color: 'bg-purple-600 hover:bg-purple-700' },
     { title: 'Aşı Durumu', path: '/patientVaccineStatus', color: 'bg-yellow-600 hover:bg-yellow-700' },
+    { title: 'Nöbetçi Veterinerler', path: '/veterinarian-on-call', color: 'bg-pink-600 hover:bg-pink-700' },
     { title: 'Çıkış Yap', path: '/', color: 'bg-red-600 hover:bg-red-700' }
   ];
 

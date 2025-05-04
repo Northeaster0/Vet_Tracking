@@ -24,18 +24,10 @@ import FindAnimals from './pages/FindAnimals';
 import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
 import Operations from './pages/Operations';
 import PatientReports from './pages/PatientReports';
-<<<<<<< HEAD
-import PatientRaports from './pages/PatientRaports';
 import logo from './logo.svg';
 import FunFacts from './components/FunFacts';
 import Anamnezs from './pages/Anamnezs';
-=======
-import logo from './logo.svg';
-import FunFacts from './components/FunFacts';
-import Anamnezs from './pages/Anamnezs';
-
-
->>>>>>> 17d69b94b62505f12b3aa503e5225d4c6bc15c66
+import VeterinarianOnCall from './pages/VeterinarianOnCall';
 
 function App() {
   return (
@@ -121,8 +113,8 @@ function App() {
         <Route path="/doctorVaccineStatus" element={<DoctorVaccineStatus />} />
         <Route path="/operations" element={<Operations />} />
         <Route path="/patient-reports" element={<PatientReports />} />
-        <Route path="/patient-raports" element={<PatientRaports />} />
         <Route path="/anamnezs" element={<Anamnezs />} />
+        <Route path="/veterinarian-on-call" element={<VeterinarianOnCall />} />
       </Routes>
     </Router>
   );
