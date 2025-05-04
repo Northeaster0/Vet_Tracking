@@ -74,6 +74,13 @@ const DoctorLogin: React.FC = () => {
         {/* Sağ panel: Doktor girişi formu */}
         <div className="flex flex-col justify-center items-center w-full md:w-1/2 bg-white relative z-10">
           <div className="w-full max-w-md p-8 rounded-2xl shadow-2xl border border-gray-100">
+            {/* Geri tuşu */}
+            <div className="mb-4">
+              <Link to="/" className="inline-flex items-center text-[#d68f13] hover:text-[#b8770f] font-semibold text-lg">
+                <svg className="w-6 h-6 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                Ana Sayfa
+              </Link>
+            </div>
             <div className="flex flex-row items-center justify-center mb-6 gap-2">
               {/* Doktor ikonu */}
               <svg className="w-8 h-8 text-[#d68f13]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
