@@ -5,21 +5,23 @@ const Operations: React.FC = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
-
-  if (!animalId) {
-    return <div className="min-h-screen flex items-center justify-center text-xl text-red-600">Hayvan seçilmedi. Lütfen bir hayvan seçerek tekrar deneyin.</div>;
-  }
-
+  
   const [operations, setOperations] = useState<any[]>([]);
   const [desc, setDesc] = useState('');
   const [date, setDate] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/operations?animalId=${animalId}`)
-      .then(res => res.json())
-      .then(data => setOperations(data));
+    if (animalId) {
+      fetch(`http://localhost:5000/api/operations?animalId=${animalId}`)
+        .then(res => res.json())
+        .then(data => setOperations(data));
+    }
   }, [animalId]);
+
+  if (!animalId) {
+    return <div className="min-h-screen flex items-center justify-center text-xl text-red-600">Hayvan seçilmedi. Lütfen bir hayvan seçerek tekrar deneyin.</div>;
+  }
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
