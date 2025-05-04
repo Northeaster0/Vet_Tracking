@@ -1,30 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// Örnek hasta verileri (ileride veritabanından gelecek)
-const patients = [
-  { id: 1, name: 'Pamuk' },
-  { id: 2, name: 'Karabaş' },
-  { id: 3, name: 'Tekir' }
-];
-
 const DeletePatient: React.FC = () => {
+  const [patients, setPatients] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredPatients, setFilteredPatients] = useState(patients);
+  const [filteredPatients, setFilteredPatients] = useState<any[]>([]);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/animals/with-details')
+      .then(res => res.json())
+      .then(data => {
+        setPatients(data);
+        setFilteredPatients(data);
+      });
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
-    
     const filtered = patients.filter(patient => 
-      patient.name.toLowerCase().includes(term.toLowerCase())
+      patient.animalName.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredPatients(filtered);
   };
 
-  const handleDelete = (patientName: string) => {
-    // İleride API çağrısı yapılacak
-    alert(`${patientName} silindi!`);
+  const handleDelete = async (animalId: number) => {
+    if (!window.confirm('Bu hayvanı silmek istediğinize emin misiniz?')) return;
+    const response = await fetch(`http://localhost:5000/api/animals/${animalId}`, {
+      method: 'DELETE'
+    });
+    const data = await response.json();
+    if (data.success) {
+      setFilteredPatients(prev => prev.filter(p => p.AnimalID !== animalId));
+      setPatients(prev => prev.filter(p => p.AnimalID !== animalId));
+      setMessage('Hasta başarıyla silindi!');
+    } else {
+      setMessage(data.message || 'Silme işlemi başarısız!');
+    }
   };
 
   return (
@@ -55,19 +68,19 @@ const DeletePatient: React.FC = () => {
           <div className="space-y-4">
             {filteredPatients.map((patient) => (
               <div 
-                key={patient.id}
+                key={patient.AnimalID}
                 className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-red-300 transition duration-300 cursor-pointer"
-                onClick={() => handleDelete(patient.name)}
+                onClick={() => handleDelete(patient.AnimalID)}
               >
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold text-gray-800">
-                    {patient.name}
+                    {patient.animalName}
                   </span>
                   <button
                     className="text-red-600 hover:text-red-800 font-semibold"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(patient.name);
+                      handleDelete(patient.AnimalID);
                     }}
                   >
                     Sil
@@ -81,6 +94,10 @@ const DeletePatient: React.FC = () => {
             <div className="text-center text-gray-500 mt-4">
               Aradığınız kriterlere uygun hasta bulunamadı.
             </div>
+          )}
+
+          {message && (
+            <div className="text-center text-green-600 mt-4">{message}</div>
           )}
         </div>
       </div>

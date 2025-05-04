@@ -257,6 +257,35 @@ app.post('/api/operations', async (req, res) => {
   }
 });
 
+// Belirli bir doktorun en son operasyonlarını getir
+app.get('/api/operations/doctor', async (req, res) => {
+  const { doctor } = req.query;
+  try {
+    const [rows] = await db.query(`
+      SELECT o.*, a.Name as animalName
+      FROM Operation o
+      JOIN Animal a ON o.AnimalID = a.AnimalID
+      WHERE o.Doctor = ?
+      ORDER BY o.CreatedAt DESC
+      LIMIT 20
+    `, [doctor]);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Doktorun operasyonları getirilemedi' });
+  }
+});
+
+// Hayvan silme endpointi
+app.delete('/api/animals/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM Animal WHERE AnimalID = ?', [id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Hayvan silinemedi', error: error.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server ${port} portunda çalışıyor`);
 }); 

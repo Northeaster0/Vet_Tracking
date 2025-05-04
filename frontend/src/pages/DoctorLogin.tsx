@@ -26,6 +26,7 @@ const DoctorLogin: React.FC = () => {
         setMessage('Giriş başarılı!');
         setIsError(false);
         localStorage.setItem('doctor', JSON.stringify(data.doctor));
+        localStorage.setItem('doctorName', `Dr. ${data.doctor.FName} ${data.doctor.LName}`);
         setTimeout(() => {
           navigate('/animal-process');
         }, 1000);

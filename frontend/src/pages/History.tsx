@@ -1,29 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-// Örnek geçmiş işlem verileri (ileride veritabanından gelecek)
-const historyItems = [
-  { 
-    id: 1,
-    animalName: 'Pamuk',
-    date: '2024-11-12',
-    process: 'Aşı uygulandı'
-  },
-  { 
-    id: 2,
-    animalName: 'Karabaş',
-    date: '2025-01-03',
-    process: 'Reçete yazıldı'
-  },
-  { 
-    id: 3,
-    animalName: 'Tekir',
-    date: '2025-03-21',
-    process: 'Kan tahlili yapıldı'
-  }
-];
-
 const History: React.FC = () => {
+  const [operations, setOperations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const doctor = localStorage.getItem('doctorName'); // Girişte kaydedilmiş olmalı
+
+  useEffect(() => {
+    if (!doctor) return;
+    fetch(`http://localhost:5000/api/operations/doctor?doctor=${encodeURIComponent(doctor)}`)
+      .then(res => res.json())
+      .then(data => {
+        setOperations(data);
+        setLoading(false);
+      });
+  }, [doctor]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="max-w-4xl mx-auto">
@@ -39,29 +31,36 @@ const History: React.FC = () => {
             Geçmiş İşlemler
           </h2>
 
-          <div className="space-y-4">
-            {historyItems.map((item) => (
-              <div 
-                key={item.id}
-                className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition duration-300"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="text-sm text-gray-500">Hayvan İsmi</span>
-                    <p className="font-semibold text-gray-800">{item.animalName}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Tarih</span>
-                    <p className="font-semibold text-gray-800">{item.date}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-500">İşlem</span>
-                    <p className="font-semibold text-blue-600">{item.process}</p>
+          {loading ? <div>Yükleniyor...</div> : (
+            <div className="space-y-4">
+              {operations.length === 0 && <div>Operasyon kaydı yok.</div>}
+              {operations.map((item, idx) => (
+                <div 
+                  key={idx}
+                  className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition duration-300"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <span className="text-sm text-gray-500">Hayvan İsmi</span>
+                      <p className="font-semibold text-gray-800">{item.animalName}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-500">Tarih</span>
+                      <p className="font-semibold text-gray-800">{item.CreatedAt}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-500">İşlem</span>
+                      <p className="font-semibold text-blue-600">{item.OpDetail}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-500">Doktor</span>
+                      <p className="font-semibold text-gray-800">{item.Doctor}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
