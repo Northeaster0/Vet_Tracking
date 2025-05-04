@@ -29,16 +29,16 @@ const PatientAcception: React.FC = () => {
   if (!animalInfo) return <div className="text-center py-8 text-gray-600">Yükleniyor...</div>;
 
   const actionButtons = [
-    { title: 'Randevu Oluştur', path: `/addAppointment?animalId=${animalInfo.AnimalID}`, color: 'bg-blue-600 hover:bg-blue-700' },
-    { title: 'Radyoloji ve Labaratuvar Sonuçları ', path: `/tests?animalId=${animalInfo.AnimalID}`, color: 'bg-green-600 hover:bg-green-700' },
-    { title: 'Geçmiş Reçeteler', path: `/animalHistory?animalId=${animalInfo.AnimalID}`, color: 'bg-purple-600 hover:bg-purple-700' },
-    { title: 'Reçete Ekle', path: `/addPrescriptions?animalId=${animalInfo.AnimalID}`, color: 'bg-yellow-600 hover:bg-yellow-700' },
-    { title: 'Bilgileri Düzenle', path: `/editPatientInfo?animalId=${animalInfo.AnimalID}`, color: 'bg-indigo-600 hover:bg-indigo-700' },
-    { title: 'Aşı', path: `/doctorVaccineStatus?animalId=${animalInfo.AnimalID}`, color: 'bg-red-600 hover:bg-red-700' },
-    { title: 'Raporlarım', path: `/patient-reports?animalId=${animalInfo.AnimalID}`, color: 'bg-pink-600 hover:bg-pink-700' },
-    { title: 'Geçmiş Operasyonlar', path: `/operations?animalId=${animalInfo.AnimalID}`, color: 'bg-gray-600 hover:bg-gray-700' },
-    { title: 'Anamnezler', path: `/anamnezs?animalId=${animalInfo.AnimalID}`, color: 'bg-blue-700 hover:bg-blue-800' }
 
+    { title: 'Randevu Oluştur', path: `/addAppointment?animalId=${animalInfo.AnimalID}`, icon: '📅' },
+    { title: 'Radyoloji ve Labaratuvar Sonuçları', path: `/tests?animalId=${animalInfo.AnimalID}`, icon: '🔬' },
+    { title: 'Geçmiş Reçeteler', path: `/animalHistory?animalId=${animalInfo.AnimalID}`, icon: '💊' },
+    { title: 'Reçete Ekle', path: `/addPrescriptions?animalId=${animalInfo.AnimalID}`, icon: '➕' },
+    { title: 'Bilgileri Düzenle', path: `/editPatientInfo?animalId=${animalInfo.AnimalID}`, icon: '✏️' },
+    { title: 'Aşı', path: `/doctorVaccineStatus?animalId=${animalInfo.AnimalID}`, icon: '💉' },
+    { title: 'Raporlarım', path: `/patient-reports?animalId=${animalInfo.AnimalID}`, icon: '📝' },
+    { title: 'Geçmiş Operasyonlar', path: `/operations?animalId=${animalInfo.AnimalID}`, icon: '🏥' },
+    { title: 'Anamnezler', path: `/anamnezs?animalId=${animalInfo.AnimalID}`, icon: '📋' }
   ];
 
   return (
@@ -108,7 +108,7 @@ const PatientAcception: React.FC = () => {
               <div className="p-6">
                 <div className="flex items-center space-x-4 mb-2">
                   <div className="bg-[#d68f13]/10 p-3 rounded-xl">
-                    <span className="text-2xl">{button.color}</span>
+                    <span className="text-2xl">{button.icon}</span>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#d68f13] transition duration-300">
                     {button.title}
