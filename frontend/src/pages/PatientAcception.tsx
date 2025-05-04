@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
+const calculateAge = (dateOfBirth: string) => {
+  const birth = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+
 const PatientAcception: React.FC = () => {
   const [animalInfo, setAnimalInfo] = useState<any>(null);
   const location = useLocation();
@@ -10,12 +21,9 @@ const PatientAcception: React.FC = () => {
 
   useEffect(() => {
     if (!animalId) return;
-    fetch('http://localhost:5000/api/animals/with-details')
+    fetch(`http://localhost:5000/api/animals/with-details?animalId=${animalId}`)
       .then(res => res.json())
-      .then(data => {
-        const found = data.find((a: any) => String(a.AnimalID) === String(animalId));
-        setAnimalInfo(found);
-      });
+      .then(data => setAnimalInfo(data));
   }, [animalId]);
 
   if (!animalInfo) return <div>Yükleniyor...</div>;
@@ -44,32 +52,32 @@ const PatientAcception: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-blue-900 mb-4">
-            {animalInfo.animalName}
+            {animalInfo.Name}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Sahip:</span> {animalInfo.ownerName}
+                <span className="font-semibold text-gray-800">Sahip:</span> {animalInfo.OwnerFName} {animalInfo.OwnerLName}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Tür:</span> {animalInfo.type}
+                <span className="font-semibold text-gray-800">Tür:</span> {animalInfo.Type}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Irk:</span> {animalInfo.breed}
+                <span className="font-semibold text-gray-800">Irk:</span> {animalInfo.Breed}
               </p>
             </div>
             <div className="space-y-2">
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Pasaport No:</span> {animalInfo.passportNo}
+                <span className="font-semibold text-gray-800">Pasaport No:</span> {animalInfo.PassportNumber}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Yaş:</span> {animalInfo.age}
+                <span className="font-semibold text-gray-800">Yaş:</span> {animalInfo.DateOfBirth ? calculateAge(animalInfo.DateOfBirth) : ''}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Cinsiyet:</span> {animalInfo.gender}
+                <span className="font-semibold text-gray-800">Cinsiyet:</span> {animalInfo.Gender}
               </p>
               <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">Kilo:</span> {animalInfo.weight} kg
+                <span className="font-semibold text-gray-800">Kilo:</span> {animalInfo.Weight} kg
               </p>
             </div>
           </div>

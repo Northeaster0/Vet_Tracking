@@ -1,53 +1,36 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-
-// Örnek veriler (ileride API'den gelecek)
-const prescriptions = [
-  {
-    id: 1,
-    date: '2024-03-15',
-    doctor: 'Dr. Ahmet Yılmaz',
-    disease: 'Kulak Enfeksiyonu',
-    medicines: [
-      {
-        name: 'Antibiyotik X',
-        dose: '1 tablet',
-        frequency: 'Günde 2 kez',
-        duration: '7 gün'
-      },
-      {
-        name: 'Ağrı Kesici Y',
-        dose: '1 tablet',
-        frequency: 'Gerektiğinde',
-        duration: '3 gün'
-      }
-    ],
-    notes: 'Kulak temizliği yapıldı. 1 hafta sonra kontrol.'
-  },
-  {
-    id: 2,
-    date: '2024-02-20',
-    doctor: 'Dr. Mehmet Demir',
-    disease: 'Deri Alerjisi',
-    medicines: [
-      {
-        name: 'Antihistamin Z',
-        dose: '1 tablet',
-        frequency: 'Günde 1 kez',
-        duration: '10 gün'
-      },
-      {
-        name: 'Krem A',
-        dose: 'İnce tabaka',
-        frequency: 'Günde 2 kez',
-        duration: '7 gün'
-      }
-    ],
-    notes: 'Alerji testi yapıldı. Özel mama önerildi.'
-  }
-];
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const PatientPrescriptionsHistory: React.FC = () => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const animalId = params.get('animalId');
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!animalId) return;
+    setLoading(true);
+    fetch(`http://localhost:5000/api/prescriptions?animalId=${animalId}`)
+      .then(res => res.json())
+      .then(data => setPrescriptions(Array.isArray(data) ? data : []))
+      .finally(() => setLoading(false));
+  }, [animalId]);
+
+  // PrescriptionID'ye göre grupla
+  const grouped = prescriptions.reduce((acc, curr) => {
+    const id = curr.PrescriptionID;
+    if (!acc[id]) acc[id] = { ...curr, medicines: [] };
+    acc[id].medicines.push({
+      MedicineName: curr.MedicineName,
+      Dose: curr.Dose,
+      Frequency: curr.Frequency,
+      Method: curr.Method
+    });
+    return acc;
+  }, {} as Record<string, any>);
+  const groupedList = Object.values(grouped);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="max-w-4xl mx-auto">
@@ -63,55 +46,36 @@ const PatientPrescriptionsHistory: React.FC = () => {
             Reçete Geçmişi
           </h2>
 
-          <div className="space-y-6">
-            {prescriptions.map((prescription) => (
-              <div key={prescription.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {prescription.disease}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Tarih: {prescription.date}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Doktor: {prescription.doctor}
-                    </p>
+          {loading ? (
+            <div className="text-center text-blue-700">Yükleniyor...</div>
+          ) : prescriptions.length === 0 ? (
+            <div className="text-center text-gray-500">Reçete kaydı yok.</div>
+          ) : (
+            <div className="space-y-6">
+              {groupedList.map((presc: any) => (
+                <div key={presc.PrescriptionID} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
+                  <div className="mb-2">
+                    <span className="font-semibold text-gray-800">Reçete #{presc.PrescriptionID}</span>
                   </div>
-                </div>
-
-                <div className="mb-4">
-                  <h4 className="text-md font-medium text-gray-700 mb-2">
-                    İlaçlar:
-                  </h4>
                   <ul className="space-y-2">
-                    {prescription.medicines.map((medicine, index) => (
-                      <li key={index} className="text-sm text-gray-600">
-                        <span className="font-medium">{medicine.name}</span>
-                        <span className="mx-2">•</span>
-                        {medicine.dose}
-                        <span className="mx-2">•</span>
-                        {medicine.frequency}
-                        <span className="mx-2">•</span>
-                        {medicine.duration}
+                    {presc.medicines.map((med: any, idx: number) => (
+                      <li key={idx} className="border-b border-gray-100 pb-2 mb-2 last:border-b-0 last:mb-0">
+                        <div className="text-base text-gray-900 flex flex-wrap gap-x-4 items-center">
+                          <span className="font-bold">{med.MedicineName}</span>
+                          <span>•</span>
+                          <span>{med.Dose}</span>
+                          <span>•</span>
+                          <span>{med.Frequency}</span>
+                          <span>•</span>
+                          <span>{med.Method}</span>
+                        </div>
                       </li>
                     ))}
                   </ul>
                 </div>
-
-                {prescription.notes && (
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="text-md font-medium text-gray-700 mb-2">
-                      Notlar:
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      {prescription.notes}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -33,6 +33,7 @@ const AddPrescriptions: React.FC = () => {
   });
   const [diseases, setDiseases] = useState<{id:number, name:string, description:string, category:string}[]>([]);
   const [medicines, setMedicines] = useState<{id:number, name:string}[]>([]);
+  const [animal, setAnimal] = useState<any>(null);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -53,7 +54,12 @@ const AddPrescriptions: React.FC = () => {
         id: m.id,
         name: m.Name || m.name
       }))));
-  }, []);
+    if (animalId) {
+      fetch(`http://localhost:5000/api/animals/with-details?animalId=${animalId}`)
+        .then(res => res.json())
+        .then(data => setAnimal(data));
+    }
+  }, [animalId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -74,7 +80,8 @@ const AddPrescriptions: React.FC = () => {
       Method: formData.applicationMethod,
       Dose: formData.dose,
       Frequency,
-      medicineId: Number(formData.medicineId)
+      medicineId: Number(formData.medicineId),
+      Disease: formData.disease
     };
     try {
       const response = await fetch('http://localhost:5000/api/prescriptions', {
@@ -126,7 +133,7 @@ const AddPrescriptions: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value="Golden Retriever"
+                  value={animal ? animal.Breed : ''}
                   disabled
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
                 />
@@ -137,7 +144,7 @@ const AddPrescriptions: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value="Köpek"
+                  value={animal ? animal.Type : ''}
                   disabled
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
                 />

@@ -22,19 +22,12 @@ import PatientVaccineStatus from './pages/PatientVaccineStatus';
 import WhatsWrong from './pages/WhatsWrong';
 import FindAnimals from './pages/FindAnimals';
 import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
-<<<<<<< HEAD
 import Operations from './pages/Operations';
 import PatientReports from './pages/PatientReports';
-import logo from './logo.svg';
-import FunFacts from './components/FunFacts';
-import Anamnezs from './pages/Anamnezs';
-=======
 import PatientRaports from './pages/PatientRaports';
 import logo from './logo.svg';
 import FunFacts from './components/FunFacts';
-import Operations from './pages/Operations';
-
->>>>>>> bd65051256f3ed20d91c13c5719427b4ab203523
+import Anamnezs from './pages/Anamnezs';
 
 function App() {
   return (
@@ -110,7 +103,7 @@ function App() {
         <Route path="/animalHistory" element={<AnimalHistory />} />
         <Route path="/addPrescriptions" element={<AddPrescriptions />} />
         <Route path="/editPatientInfo" element={<EditPatientInfo />} />
-        <Route path="/patientDashboard" element={<PatientDashboard />} />
+        <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/patientProfile" element={<ClientProfile />} />
         <Route path="/patientPrescriptionsHistory" element={<PatientPrescriptionsHistory />} />
         <Route path="/patientTestResults" element={<PatientTestResults />} />
@@ -119,7 +112,8 @@ function App() {
         <Route path="/findAnimals" element={<FindAnimals />} />
         <Route path="/doctorVaccineStatus" element={<DoctorVaccineStatus />} />
         <Route path="/operations" element={<Operations />} />
-        <Route path="/patient-raports" element={<PatientReports />} />
+        <Route path="/patient-reports" element={<PatientReports />} />
+        <Route path="/patient-raports" element={<PatientRaports />} />
         <Route path="/anamnezs" element={<Anamnezs />} />
       </Routes>
     </Router>

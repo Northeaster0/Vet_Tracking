@@ -1,35 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// Örnek veriler (ileride API'den gelecek)
-const clientInfo = {
-  identityNo: '12345678901',
-  name: 'Ayşe Yılmaz',
-  phone: '05551234567',
-  email: 'ayse.yilmaz@example.com',
-  address: 'Örnek Mahallesi, Test Sokak No:1 Daire:2, İstanbul'
-};
-
 const ClientProfile: React.FC = () => {
-  const [formData, setFormData] = useState({
-    phone: clientInfo.phone,
-    email: clientInfo.email,
-    address: clientInfo.address
-  });
+  const [profile, setProfile] = useState<any>(null);
+  const [formData, setFormData] = useState({ phone: '', email: '', address: '' });
+  const [successMsg, setSuccessMsg] = useState('');
+
+  useEffect(() => {
+    const owner = JSON.parse(localStorage.getItem('owner') || '{}');
+    if (owner.OwnerID) {
+      fetch(`http://localhost:5000/api/owners/${owner.OwnerID}`)
+        .then(res => res.json())
+        .then(data => {
+          setProfile(data);
+          setFormData({ phone: data.Phone || '', email: data.Email || '', address: data.Address || '' });
+        });
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // İleride API çağrısı yapılacak
-    console.log('Güncellenen bilgiler:', formData);
+    setSuccessMsg('');
+    const owner = JSON.parse(localStorage.getItem('owner') || '{}');
+    if (owner.OwnerID) {
+      const response = await fetch(`http://localhost:5000/api/owners/${owner.OwnerID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccessMsg('Profil başarıyla güncellendi!');
+      } else {
+        setSuccessMsg('Profil güncellenemedi!');
+      }
+    }
   };
+
+  if (!profile) return <div>Yükleniyor...</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
@@ -55,7 +68,7 @@ const ClientProfile: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={clientInfo.identityNo}
+                  value={profile.NationalID || ''}
                   readOnly
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
                 />
@@ -66,7 +79,7 @@ const ClientProfile: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={clientInfo.name}
+                  value={profile.FName + ' ' + profile.LName}
                   readOnly
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
                 />
@@ -125,6 +138,7 @@ const ClientProfile: React.FC = () => {
             >
               Kaydet
             </button>
+            {successMsg && <div className="text-center text-green-700 font-semibold mt-2">{successMsg}</div>}
           </form>
         </div>
       </div>

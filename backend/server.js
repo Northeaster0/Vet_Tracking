@@ -246,34 +246,26 @@ app.get('/api/funfacts', async (req, res) => {
   }
 });
 
-// Hayvan, sahibi ve tür/ırk bilgileriyle birlikte detaylı liste endpointi
+// Hayvanları detaylı (tür ve ırk ile) getir
 app.get('/api/animals/with-details', async (req, res) => {
+  const { ownerId, animalId } = req.query;
   try {
-    const [rows] = await db.query(`
-      SELECT 
-        a.AnimalID,
-        a.Name as animalName,
-        a.PassportNumber as passportNo,
-        a.Gender as gender,
-        a.Weight as weight,
-        a.Color as color,
-        a.DateOfBirth,
-        o.FName as ownerFName,
-        o.LName as ownerLName,
-        at.Species as type,
-        at.Breed as breed
+    let query = `
+      SELECT a.*, at.Species as Type, at.Breed, o.FName as OwnerFName, o.LName as OwnerLName
       FROM Animal a
-      JOIN Owner o ON a.OwnerID = o.OwnerID
       JOIN AnimalType at ON a.AnimalTypeID = at.AnimalTypeID
-      ORDER BY a.AnimalID DESC
-    `);
-    // Yaş hesapla ve ownerName birleştir
-    const result = rows.map(row => ({
-      ...row,
-      ownerName: row.ownerFName + ' ' + row.ownerLName,
-      age: row.DateOfBirth ? (new Date().getFullYear() - new Date(row.DateOfBirth).getFullYear()) : '',
-    }));
-    res.json(result);
+      JOIN Owner o ON a.OwnerID = o.OwnerID
+    `;
+    const params = [];
+    if (animalId) {
+      query += ' WHERE a.AnimalID = ?';
+      params.push(animalId);
+    } else if (ownerId) {
+      query += ' WHERE a.OwnerID = ?';
+      params.push(ownerId);
+    }
+    const [rows] = await db.query(query, params);
+    res.json(animalId ? rows[0] : rows);
   } catch (error) {
     res.status(500).json({ error: 'Hayvanlar getirilemedi' });
   }
@@ -681,6 +673,10 @@ app.get('/api/anamnezs', async (req, res) => {
 // Yeni anamnez ekle
 app.post('/api/anamnezs', async (req, res) => {
   const { animalId, veterinaryId, detail } = req.body;
+  console.log('Gelen veri:', { animalId, veterinaryId, detail });
+  if (!animalId || !veterinaryId || !detail) {
+    return res.status(400).json({ error: 'Eksik bilgi gönderildi!' });
+  }
   try {
     await db.query(
       'INSERT INTO Anamnez (AnimalID, VeterinaryID, Detail, CreatedAt) VALUES (?, ?, ?, NOW())',
@@ -690,6 +686,90 @@ app.post('/api/anamnezs', async (req, res) => {
   } catch (error) {
     console.error('Anamnez ekleme hatası:', error);
     res.status(500).json({ error: 'Anamnez eklenemedi' });
+  }
+});
+
+// Belirli bir owner'ı getir
+app.get('/api/owners/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.query('SELECT * FROM Owner WHERE OwnerID = ?', [id]);
+    if (rows.length > 0) res.json(rows[0]);
+    else res.status(404).json({ error: 'Müşteri bulunamadı' });
+  } catch (error) {
+    res.status(500).json({ error: 'Müşteri getirilemedi' });
+  }
+});
+
+// Belirli bir owner'ın hayvanlarını getir
+app.get('/api/animals', async (req, res) => {
+  const { ownerId } = req.query;
+  if (!ownerId) return res.status(400).json({ error: 'ownerId gerekli' });
+  try {
+    const [rows] = await db.query('SELECT * FROM Animal WHERE OwnerID = ?', [ownerId]);
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Hayvanlar getirilemedi' });
+  }
+});
+
+// Alerjik hastalıkları getir
+app.get('/api/allergy-diseases', async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT Name FROM Disease WHERE Category = 'Alerjik'");
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Alerji hastalıkları getirilemedi' });
+  }
+});
+
+// Hayvanın alerjisini güncelle
+app.put('/api/animals/:id/allergies', async (req, res) => {
+  const { id } = req.params;
+  const { allergies } = req.body;
+  try {
+    await db.query('UPDATE Animal SET Allergies = ? WHERE AnimalID = ?', [allergies, id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Alerji güncellenemedi' });
+  }
+});
+
+// Owner bilgilerini güncelle
+app.put('/api/owners/:id', async (req, res) => {
+  const { id } = req.params;
+  const { phone, email, address } = req.body;
+  try {
+    await db.query(
+      'UPDATE Owner SET Phone = ?, Email = ?, Address = ? WHERE OwnerID = ?',
+      [phone, email, address, id]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Profil güncellenemedi' });
+  }
+});
+
+// Hayvanın geçmişte olduğu aşıları dönen endpoint
+app.get('/api/animals/:animalId/vaccines', async (req, res) => {
+  const { animalId } = req.params;
+  try {
+    // En son yapılan aşı en başta olacak şekilde sıralanıyor
+    const [rows] = await db.query(`
+      SELECT va.VaccineForAnimalID, v.Name
+      FROM vaccine_animal va
+      JOIN vaccine v ON va.VaccineID = v.VaccineID
+      WHERE va.AnimalID = ?
+      ORDER BY va.VaccineForAnimalID DESC
+    `, [animalId]);
+    // İlk aşıya "yapıldı", diğerlerine "yaklaşıyor" etiketi ekle
+    const result = rows.map((row, idx) => ({
+      ...row,
+      status: idx === 0 ? 'Yapıldı' : 'Yaklaşıyor'
+    }));
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Aşılar getirilemedi' });
   }
 });
 

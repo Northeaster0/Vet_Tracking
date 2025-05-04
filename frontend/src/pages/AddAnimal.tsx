@@ -20,6 +20,7 @@ const AddAnimal: React.FC = () => {
     allergies: ''
   });
   const [animalTypes, setAnimalTypes] = useState<{ AnimalTypeID: number, Species: string, Breed: string }[]>([]);
+  const [allergyOptions, setAllergyOptions] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
@@ -30,6 +31,9 @@ const AddAnimal: React.FC = () => {
     fetch('http://localhost:5000/api/animal-types')
       .then(res => res.json())
       .then(data => setAnimalTypes(data));
+    fetch('http://localhost:5000/api/allergy-diseases')
+      .then(res => res.json())
+      .then(data => setAllergyOptions(['Yok', ...data.map((d: any) => d.Name)]));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -66,7 +70,8 @@ const AddAnimal: React.FC = () => {
       dateOfBirth,
       weight: formData.weight,
       color: formData.color,
-      passportNumber: formData.passportNo
+      passportNumber: formData.passportNo,
+      allergies: formData.allergies
     };
     try {
       const response = await fetch('http://localhost:5000/api/animals', {
@@ -275,7 +280,7 @@ const AddAnimal: React.FC = () => {
                 required
               >
                 <option value="">Seçiniz</option>
-                {allergies.map(allergy => (
+                {allergyOptions.map(allergy => (
                   <option key={allergy} value={allergy}>{allergy}</option>
                 ))}
               </select>

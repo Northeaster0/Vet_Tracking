@@ -11,14 +11,27 @@ const FindAnimals: React.FC = () => {
       .then(data => setAnimalList(data));
   }, []);
 
+  // Yaş hesaplama fonksiyonu
+  const calculateAge = (dateOfBirth: string) => {
+    if (!dateOfBirth) return '';
+    const birth = new Date(dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const filteredAnimals = animalList.filter(animal => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      animal.animalName.toLowerCase().includes(searchLower) ||
-      animal.ownerName.toLowerCase().includes(searchLower) ||
-      animal.type.toLowerCase().includes(searchLower) ||
-      animal.breed.toLowerCase().includes(searchLower) ||
-      animal.passportNo.toLowerCase().includes(searchLower)
+      animal.Name.toLowerCase().includes(searchLower) ||
+      (animal.Type && animal.Type.toLowerCase().includes(searchLower)) ||
+      (animal.Breed && animal.Breed.toLowerCase().includes(searchLower)) ||
+      (animal.PassportNumber && animal.PassportNumber.toLowerCase().includes(searchLower)) ||
+      ((animal.OwnerFName + ' ' + animal.OwnerLName).toLowerCase().includes(searchLower))
     );
   });
 
@@ -64,30 +77,30 @@ const FindAnimals: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {animal.animalName}
+                    {animal.Name}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Sahip:</span> {animal.ownerName}
+                    <span className="font-medium text-gray-800">Sahip:</span> {animal.OwnerFName} {animal.OwnerLName}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Tür:</span> {animal.type}
+                    <span className="font-medium text-gray-800">Tür:</span> {animal.Type}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Irk:</span> {animal.breed}
+                    <span className="font-medium text-gray-800">Irk:</span> {animal.Breed}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Pasaport No:</span> {animal.passportNo}
+                    <span className="font-medium text-gray-800">Pasaport No:</span> {animal.PassportNumber}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Yaş:</span> {animal.age}
+                    <span className="font-medium text-gray-800">Yaş:</span> {calculateAge(animal.DateOfBirth)}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Cinsiyet:</span> {animal.gender}
+                    <span className="font-medium text-gray-800">Cinsiyet:</span> {animal.Gender}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Kilo:</span> {animal.weight} kg
+                    <span className="font-medium text-gray-800">Kilo:</span> {animal.Weight} kg
                   </p>
                 </div>
               </div>
