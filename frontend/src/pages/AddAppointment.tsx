@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format } from 'date-fns';
+import { parse } from 'date-fns';
+import { startOfWeek } from 'date-fns';
+import { getDay } from 'date-fns';
+import { tr } from 'date-fns/locale';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 // Örnek veriler (ileride API'den gelecek)
 const appointmentTypes = [
@@ -20,6 +27,17 @@ const operationTypes = [
   { id: 3, name: 'Diş Temizliği' }
 ];
 
+const locales = {
+  'tr-TR': tr,
+};
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
 const AddAppointment: React.FC = () => {
   const [formData, setFormData] = useState({
     dateTime: '',
@@ -28,10 +46,35 @@ const AddAppointment: React.FC = () => {
     operationType: '',
     examinationNote: ''
   });
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [modalTime, setModalTime] = useState('');
+  const [modalNote, setModalNote] = useState('');
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
+
+  // Owner ve Veterinary bilgisi localStorage'dan alınacak
+  const owner = JSON.parse(localStorage.getItem('owner') || '{}');
+  const veterinary = JSON.parse(localStorage.getItem('doctor') || '{}');
+
+  // Randevuları çek
+  useEffect(() => {
+    if (!animalId) return;
+    fetch(`http://localhost:5000/api/appointments?animalId=${animalId}`)
+      .then(res => res.json())
+      .then(data => setAppointments(data));
+  }, [animalId]);
+
+  // Randevu eklenince tekrar çek
+  const fetchAppointments = () => {
+    if (!animalId) return;
+    fetch(`http://localhost:5000/api/appointments?animalId=${animalId}`)
+      .then(res => res.json())
+      .then(data => setAppointments(data));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -41,11 +84,33 @@ const AddAppointment: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // İleride API çağrısı yapılacak
-    console.log('Randevu bilgileri:', formData);
-    // Form temizleme
+    // Reason alanı randevu türüne göre belirleniyor
+    let reason = '';
+    if (formData.appointmentType === 'Aşı') reason = formData.vaccineType;
+    else if (formData.appointmentType === 'Muayene') reason = formData.examinationNote;
+    else if (formData.appointmentType === 'Operasyon') reason = formData.operationType;
+    else reason = formData.appointmentType;
+
+    const payload = {
+      VeterinaryID: veterinary.VeterinaryID || 1,
+      AnimalID: Number(animalId),
+      OwnerID: owner.OwnerID || 1,
+      AppointmentDateTime: formData.dateTime,
+      Reason: reason,
+      Status: 'Planned',
+      CreatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    };
+    try {
+      const response = await fetch('http://localhost:5000/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Randevu başarıyla oluşturuldu!');
     setFormData({
       dateTime: '',
       appointmentType: '',
@@ -53,7 +118,62 @@ const AddAppointment: React.FC = () => {
       operationType: '',
       examinationNote: ''
     });
+        fetchAppointments();
+      } else {
+        alert(data.message || 'Randevu oluşturulamadı!');
+      }
+    } catch (err) {
+      alert('Sunucuya bağlanılamadı!');
+    }
   };
+
+  // Takvimde boş bir alana tıklanınca modal aç
+  const handleSelectSlot = (slotInfo: any) => {
+    setSelectedDate(slotInfo.start);
+    setModalTime('');
+    setModalNote('');
+    setShowModal(true);
+  };
+
+  // Modalda kaydet
+  const handleModalSave = async () => {
+    if (!selectedDate || !modalTime) return;
+    // Tarih ve saat birleştir
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const dateTime = `${dateStr}T${modalTime}`;
+    const payload = {
+      VeterinaryID: veterinary.VeterinaryID || 1,
+      AnimalID: Number(animalId),
+      OwnerID: owner.OwnerID || 1,
+      AppointmentDateTime: dateTime,
+      Reason: modalNote,
+      Status: 'Planned',
+      CreatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    };
+    try {
+      const response = await fetch('http://localhost:5000/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setShowModal(false);
+        fetchAppointments();
+      } else {
+        alert(data.message || 'Randevu oluşturulamadı!');
+      }
+    } catch (err) {
+      alert('Sunucuya bağlanılamadı!');
+    }
+  };
+
+  // Randevuları takvim eventlerine dönüştür
+  const events = appointments.map(a => ({
+    title: a.Reason || 'Randevu',
+    start: new Date(a.AppointmentDateTime),
+    end: new Date(a.AppointmentDateTime),
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
@@ -65,122 +185,54 @@ const AddAppointment: React.FC = () => {
           ←
         </Link>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Randevu Ekle
-          </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="dateTime" className="block text-sm font-medium text-gray-700 mb-1">
-                Tarih ve Saat
-              </label>
-              <input
-                type="datetime-local"
-                id="dateTime"
-                name="dateTime"
-                value={formData.dateTime}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="appointmentType" className="block text-sm font-medium text-gray-700 mb-1">
-                Randevu Türü
-              </label>
-              <select
-                id="appointmentType"
-                name="appointmentType"
-                value={formData.appointmentType}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              >
-                <option value="">Seçiniz</option>
-                {appointmentTypes.map(type => (
-                  <option key={type.id} value={type.name}>
-                    {type.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Aşı seçildiğinde gösterilecek alan */}
-            {formData.appointmentType === 'Aşı' && (
-              <div>
-                <label htmlFor="vaccineType" className="block text-sm font-medium text-gray-700 mb-1">
-                  Aşı İsmi
-                </label>
-                <select
-                  id="vaccineType"
-                  name="vaccineType"
-                  value={formData.vaccineType}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  <option value="">Seçiniz</option>
-                  {vaccineTypes.map(type => (
-                    <option key={type.id} value={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Muayene seçildiğinde gösterilecek alan */}
-            {formData.appointmentType === 'Muayene' && (
-              <div>
-                <label htmlFor="examinationNote" className="block text-sm font-medium text-gray-700 mb-1">
-                  Muayene Notu
-                </label>
-                <textarea
-                  id="examinationNote"
-                  name="examinationNote"
-                  value={formData.examinationNote}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-            )}
-
-            {/* Operasyon seçildiğinde gösterilecek alan */}
-            {formData.appointmentType === 'Operasyon' && (
-              <div>
-                <label htmlFor="operationType" className="block text-sm font-medium text-gray-700 mb-1">
-                  Operasyon Türü
-                </label>
-                <select
-                  id="operationType"
-                  name="operationType"
-                  value={formData.operationType}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  <option value="">Seçiniz</option>
-                  {operationTypes.map(type => (
-                    <option key={type.id} value={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 mt-6"
-            >
-              Randevu Oluştur
-            </button>
-          </form>
+        {/* Takvim görünümü */}
+        <div className="mt-10">
+          <h3 className="text-xl font-bold text-blue-900 mb-4">Randevu Takvimi</h3>
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 500 }}
+            messages={{
+              next: 'İleri',
+              previous: 'Geri',
+              today: 'Bugün',
+              month: 'Ay',
+              week: 'Hafta',
+              day: 'Gün',
+              agenda: 'Ajanda',
+            }}
+            culture="tr-TR"
+            selectable
+            onSelectSlot={handleSelectSlot}
+          />
         </div>
+
+        {/* Modal */}
+        {showModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+              <h3 className="text-lg font-bold mb-4">Yeni Randevu Oluştur</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
+                <input type="text" value={selectedDate?.toLocaleDateString('tr-TR')} disabled className="w-full px-3 py-2 border rounded bg-gray-100" />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Saat</label>
+                <input type="time" value={modalTime} onChange={e => setModalTime(e.target.value)} className="w-full px-3 py-2 border rounded" required />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Veteriner Hekim Yorumu</label>
+                <textarea value={modalNote} onChange={e => setModalNote(e.target.value)} className="w-full px-3 py-2 border rounded" rows={3} placeholder="Yorum yazın..." />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">İptal</button>
+                <button onClick={handleModalSave} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Kaydet</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

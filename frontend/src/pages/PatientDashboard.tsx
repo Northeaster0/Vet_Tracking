@@ -16,6 +16,7 @@ const PatientDashboard: React.FC = () => {
     { title: 'Reçete Geçmişi', path: '/patientPrescriptionsHistory', icon: '💊' },
     { title: 'Radyoloji ve Labaratuvar Sonuçları', path: '/patientTestResults', icon: '🔬' },
     { title: 'Aşı Durumu', path: '/patientVaccineStatus', icon: '💉' }
+
   ];
 
   const calculateAge = (dateOfBirth: string) => {

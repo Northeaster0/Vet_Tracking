@@ -27,6 +27,7 @@ import PatientReports from './pages/PatientReports';
 import logo from './logo.svg';
 import FunFacts from './components/FunFacts';
 import Anamnezs from './pages/Anamnezs';
+import VeterinarianOnCall from './pages/VeterinarianOnCall';
 
 
 function App() {
@@ -114,6 +115,7 @@ function App() {
         <Route path="/operations" element={<Operations />} />
         <Route path="/patient-reports" element={<PatientReports />} />
         <Route path="/anamnezs" element={<Anamnezs />} />
+        <Route path="/veterinarian-on-call" element={<VeterinarianOnCall />} />
       </Routes>
     </Router>
   );

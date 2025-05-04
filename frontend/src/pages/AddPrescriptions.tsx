@@ -25,7 +25,8 @@ const AddPrescriptions: React.FC = () => {
     duration: ''
   });
   const [diseases, setDiseases] = useState<{id:number, name:string, description:string, category:string}[]>([]);
-  const [medicines, setMedicines] = useState<{id:number, name:string}[]>([]);
+  const [medicines, setMedicines] = useState<{id:number, name:string, activeSubstance:string}[]>([]);
+  const [selectedActiveSubstance, setSelectedActiveSubstance] = useState('');
   const [animal, setAnimal] = useState<any>(null);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
@@ -45,10 +46,14 @@ const AddPrescriptions: React.FC = () => {
       }))));
     fetch('http://localhost:5000/api/medicines')
       .then(res => res.json())
-      .then(data => setMedicines(data.map((m: any) => ({
-        id: m.id,
-        name: m.Name || m.name
-      }))));
+      .then(data => {
+        console.log('APIden gelen ilaç verisi:', data);
+        setMedicines(data.map((m: any) => ({
+          id: m.id || m.MedicineID,
+          name: m.Name || m.name,
+          activeSubstance: m.ActiveSubstance || m.activeSubstance || m.active_substance || m.activesubstance || ''
+        })));
+      });
     if (animalId) {
       fetch(`http://localhost:5000/api/animals/with-details?animalId=${animalId}`)
         .then(res => res.json())
@@ -62,6 +67,10 @@ const AddPrescriptions: React.FC = () => {
       ...prev,
       [name]: value
     }));
+    if (name === 'medicineId') {
+      const selected = medicines.find(m => m.id === Number(value));
+      setSelectedActiveSubstance(selected ? selected.activeSubstance : '');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -208,7 +217,21 @@ const AddPrescriptions: React.FC = () => {
               </select>
             </div>
 
-            {/* Dose */}
+            {/* Etken Madde kutusu */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Etken Madde
+              </label>
+              <input
+                type="text"
+                name="activeSubstance"
+                value={selectedActiveSubstance}
+                disabled
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+              />
+            </div>
+
+            {/* Doz */}
             <div>
               <label htmlFor="dose" className="block text-sm font-medium text-gray-700 mb-2">
                 Doz

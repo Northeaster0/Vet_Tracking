@@ -1,50 +1,55 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-// Örnek veriler (ileride API'den gelecek)
-const pastTests = [
-  { id: 1, type: 'Hemogram', date: '2025-03-01', result: 'Normal' },
-  { id: 2, type: 'Röntgen', date: '2025-02-12', result: 'Sağ arka bacakta çatlak' },
-  { id: 3, type: 'Biyokimya', date: '2024-12-05', result: 'Karaciğer enzimleri yüksek' }
+const radiologyResults = [
+  {
+    id: 1,
+    date: '2024-03-10',
+    type: 'Röntgen',
+    description: 'Sol arka bacakta kırık tespit edildi.',
+    imageUrl: '' // örnek: '/uploads/radiology1.jpg'
+  },
+  {
+    id: 2,
+    date: '2024-02-05',
+    type: 'Ultrason',
+    description: 'Karaciğer boyutları normal.',
+    imageUrl: ''
+  }
 ];
 
-const testTypes = [
-  { id: 1, name: 'Hemogram' },
-  { id: 2, name: 'Röntgen' },
-  { id: 3, name: 'Biyokimya' },
-  { id: 4, name: 'İdrar' }
+const labResults = [
+  {
+    id: 1,
+    date: '2024-03-15',
+    testType: 'Kan Tahlili',
+    results: [
+      { parameter: 'WBC', value: '12.5', unit: '10^3/μL', normalRange: '5.5-16.5' },
+      { parameter: 'RBC', value: '7.2', unit: '10^6/μL', normalRange: '5.5-8.5' },
+      { parameter: 'HGB', value: '15.8', unit: 'g/dL', normalRange: '12.0-18.0' },
+      { parameter: 'HCT', value: '45', unit: '%', normalRange: '37-55' }
+    ],
+    notes: 'Genel durum normal sınırlar içerisinde. Herhangi bir anormallik tespit edilmedi.'
+  },
+  {
+    id: 2,
+    date: '2024-02-20',
+    testType: 'Biyokimya',
+    results: [
+      { parameter: 'Glukoz', value: '95', unit: 'mg/dL', normalRange: '70-120' },
+      { parameter: 'BUN', value: '18', unit: 'mg/dL', normalRange: '10-30' },
+      { parameter: 'Kreatinin', value: '1.2', unit: 'mg/dL', normalRange: '0.5-1.8' },
+      { parameter: 'ALT', value: '45', unit: 'U/L', normalRange: '10-100' }
+    ],
+    notes: 'Karaciğer fonksiyonları normal sınırlar içerisinde. Böbrek değerleri optimal seviyede.'
+  }
 ];
 
 const Tests: React.FC = () => {
-  const [selectedTest, setSelectedTest] = useState('');
-  const [requestMessage, setRequestMessage] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('lab');
+  const [activeTab, setActiveTab] = useState<'radyoloji' | 'lab'>('radyoloji');
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
-
-  const handleTestChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedTest(e.target.value);
-  };
-
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(e.target.value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedTest) {
-      setRequestMessage(`${selectedTest} test istendi`);
-      setSelectedTest('');
-    }
-  };
-
-  // Kategoriye göre filtrele
-  const filteredTests = pastTests.filter(test =>
-    selectedCategory === 'radyoloji'
-      ? test.type.toLowerCase().includes('röntgen')
-      : !test.type.toLowerCase().includes('röntgen')
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
@@ -56,81 +61,101 @@ const Tests: React.FC = () => {
           ←
         </Link>
 
-        {/* Kategori Dropdown */}
-        <div className="mb-6 flex justify-end">
-          <select
-            value={selectedCategory}
-            onChange={handleCategoryChange}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="radyoloji">Radyoloji Sonuçları</option>
-            <option value="lab">Labaratuvar Sonuçları</option>
-          </select>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            {selectedCategory === 'radyoloji' ? 'Radyoloji Sonuçları' : 'Labaratuvar Sonuçları'}
-          </h2>
-
-          <div className="space-y-4">
-            {filteredTests.length === 0 && (
-              <div className="text-gray-500">Kayıt bulunamadı.</div>
-            )}
-            {filteredTests.map((test) => (
-              <div 
-                key={test.id}
-                className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition duration-300"
-              >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div className="mb-2 md:mb-0">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {test.type}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Tarih: {test.date}
-                    </p>
-                  </div>
-                  <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {test.result}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Yeni Tahlil İste
+            Radyolojik ve Labaratuvar Sonuçları
           </h2>
 
-          <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4">
-            <select
-              value={selectedTest}
-              onChange={handleTestChange}
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            >
-              <option value="">Tahlil Türü Seçin</option>
-              {testTypes.map((type) => (
-                <option key={type.id} value={type.name}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
-
+          {/* Sekmeler */}
+          <div className="flex space-x-4 mb-6">
             <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+              onClick={() => setActiveTab('radyoloji')}
+              className={`px-6 py-2 rounded-lg font-semibold transition duration-300 ${
+                activeTab === 'radyoloji'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
             >
-              Tahlil Ekle
+              Radyolojik Sonuçlar
             </button>
-          </form>
+            <button
+              onClick={() => setActiveTab('lab')}
+              className={`px-6 py-2 rounded-lg font-semibold transition duration-300 ${
+                activeTab === 'lab'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Labaratuvar Sonuçları
+            </button>
+          </div>
 
-          {requestMessage && (
-            <div className="mt-4 p-4 bg-green-100 text-green-800 rounded-lg">
-              {requestMessage}
+          {/* Sekme İçeriği */}
+          {activeTab === 'radyoloji' ? (
+            <div className="space-y-6">
+              {radiologyResults.map((r) => (
+                <div key={r.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">{r.type}</h3>
+                      <p className="text-sm text-gray-600">Tarih: {r.date}</p>
+                    </div>
+                  </div>
+                  <div className="mb-2 text-gray-700">{r.description}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {labResults.map((test) => (
+                <div key={test.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {test.testType}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Tarih: {test.date}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <h4 className="text-md font-medium text-gray-700 mb-2">
+                      Sonuçlar:
+                    </h4>
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parametre</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Değer</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Birim</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Normal Aralık</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {test.results.map((result, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{result.parameter}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{result.value}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{result.unit}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{result.normalRange}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-md font-medium text-gray-700 mb-2">
+                      Doktor Notları:
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      {test.notes}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
