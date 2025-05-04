@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 // Örnek veriler (ileride API'den gelecek)
 const prescriptions = [
@@ -21,6 +21,9 @@ const historyTypes = [
 
 const AnimalHistory: React.FC = () => {
   const [selectedType, setSelectedType] = useState('Reçeteler');
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const animalId = params.get('animalId');
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(e.target.value);
@@ -31,8 +34,8 @@ const AnimalHistory: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <Link 
-            to="/patientAcception" 
-            className="text-blue-600 hover:text-blue-800 text-3xl font-bold"
+            to={`/patientAcception?animalId=${animalId}`} 
+            className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
           >
             ←
           </Link>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface Vaccine {
   id: number;
@@ -10,6 +10,10 @@ interface Vaccine {
 }
 
 const DoctorVaccineStatus: React.FC = () => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const animalId = params.get('animalId');
+
   // Örnek aşı listesi (ileride veritabanından gelecek)
   const vaccineTypes = [
     { id: 1, name: 'Kuduz Aşısı' },
@@ -79,7 +83,7 @@ const DoctorVaccineStatus: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="max-w-4xl mx-auto">
         <Link 
-          to="/patientAcception" 
+          to={`/patientAcception?animalId=${animalId}`} 
           className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
         >
           ←

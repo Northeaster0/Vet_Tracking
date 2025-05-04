@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 // Örnek veriler (ileride API'den gelecek)
-const diseases = [
-  { id: 1, name: 'Parvovirüs' },
-  { id: 2, name: 'Kuduz' },
-  { id: 3, name: 'Deri Enfeksiyonu' }
-];
-
-const medicines = [
-  { id: 1, name: 'Antibiyotik X' },
-  { id: 2, name: 'Vitamin Y' },
-  { id: 3, name: 'Steroid Z' }
-];
+// const medicines = [
+//   { id: 1, name: 'Antibiyotik X' },
+//   { id: 2, name: 'Vitamin Y' },
+//   { id: 3, name: 'Steroid Z' }
+// ];
 
 const applicationMethods = [
   { id: 1, name: 'Ağızdan' },
@@ -30,14 +24,36 @@ const frequencyTypes = [
 const AddPrescriptions: React.FC = () => {
   const [formData, setFormData] = useState({
     disease: '',
-    medicine: '',
+    medicineId: '',
     dose: '',
     applicationMethod: '',
     frequencyType: '',
     frequencyCount: '',
-    duration: '',
-    anamnesis: ''
+    duration: ''
   });
+  const [diseases, setDiseases] = useState<{id:number, name:string, description:string, category:string}[]>([]);
+  const [medicines, setMedicines] = useState<{id:number, name:string}[]>([]);
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const animalId = params.get('animalId');
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/diseases')
+      .then(res => res.json())
+      .then(data => setDiseases(data.map((d: any) => ({
+        id: d.id,
+        name: d.Name || d.name,
+        description: d.Description || d.description,
+        category: d.Category || d.category
+      }))));
+    fetch('http://localhost:5000/api/medicines')
+      .then(res => res.json())
+      .then(data => setMedicines(data.map((m: any) => ({
+        id: m.id,
+        name: m.Name || m.name
+      }))));
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -47,28 +63,49 @@ const AddPrescriptions: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // İleride API çağrısı yapılacak
-    console.log('Reçete bilgileri:', formData);
-    // Form temizleme
-    setFormData({
-      disease: '',
-      medicine: '',
-      dose: '',
-      applicationMethod: '',
-      frequencyType: '',
-      frequencyCount: '',
-      duration: '',
-      anamnesis: ''
-    });
+    const doctor = JSON.parse(localStorage.getItem('doctor') || '{}');
+    const VeterinaryID = doctor.VeterinaryID || doctor.id || 1; // fallback
+    const Frequency = `${formData.frequencyType} ${formData.frequencyCount} kez`;
+    const payload = {
+      VeterinaryID,
+      AnimalID: Number(animalId),
+      Method: formData.applicationMethod,
+      Dose: formData.dose,
+      Frequency
+    };
+    try {
+      const response = await fetch('http://localhost:5000/api/prescriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Reçete başarıyla eklendi ve stok güncellendi!');
+        setFormData({
+          disease: '',
+          medicineId: '',
+          dose: '',
+          applicationMethod: '',
+          frequencyType: '',
+          frequencyCount: '',
+          duration: ''
+        });
+      } else {
+        alert(data.message || 'Reçete eklenemedi!');
+      }
+    } catch (err) {
+      alert('Sunucuya bağlanılamadı!');
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="max-w-2xl mx-auto">
         <Link 
-          to="/patientAcception" 
+          to={`/patientAcception?animalId=${animalId}`} 
           className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
         >
           ←
@@ -135,15 +172,15 @@ const AddPrescriptions: React.FC = () => {
               </label>
               <select
                 id="medicine"
-                name="medicine"
-                value={formData.medicine}
+                name="medicineId"
+                value={formData.medicineId}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               >
                 <option value="">Seçiniz</option>
                 {medicines.map((medicine) => (
-                  <option key={medicine.id} value={medicine.name}>
+                  <option key={medicine.id} value={medicine.id}>
                     {medicine.name}
                   </option>
                 ))}
@@ -241,22 +278,6 @@ const AddPrescriptions: React.FC = () => {
                   required
                 />
               </div>
-            </div>
-
-            {/* Anamnez */}
-            <div>
-              <label htmlFor="anamnesis" className="block text-sm font-medium text-gray-700 mb-1">
-                Anamnez
-              </label>
-              <textarea
-                id="anamnesis"
-                name="anamnesis"
-                value={formData.anamnesis}
-                onChange={handleChange}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
             </div>
 
             <button

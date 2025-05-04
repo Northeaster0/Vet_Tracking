@@ -286,6 +286,35 @@ app.delete('/api/animals/:id', async (req, res) => {
   }
 });
 
+app.get('/api/diseases', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT DiseaseID as id, Name, Description, Category FROM Disease');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Hastalıklar getirilemedi' });
+  }
+});
+
+app.post('/api/prescriptions', async (req, res) => {
+  const { VeterinaryID, AnimalID, Method, Dose, Frequency, medicineId } = req.body;
+  try {
+    await db.query(
+      'INSERT INTO Prescription (VeterinaryID, AnimalID, Method, Dose, Frequency) VALUES (?, ?, ?, ?, ?)',
+      [VeterinaryID, AnimalID, Method, Dose, Frequency]
+    );
+    // Stok azalt
+    if (medicineId) {
+      await db.query(
+        'UPDATE MedicineStock SET Quantity = GREATEST(Quantity - 1, 0) WHERE MedicineID = ?',
+        [medicineId]
+      );
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Reçete eklenemedi', error: error.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server ${port} portunda çalışıyor`);
 }); 

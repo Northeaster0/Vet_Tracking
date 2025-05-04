@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 // Örnek veriler (ileride API'den gelecek)
 const appointmentTypes = [
@@ -29,6 +29,10 @@ const AddAppointment: React.FC = () => {
     examinationNote: ''
   });
 
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const animalId = params.get('animalId');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -55,7 +59,7 @@ const AddAppointment: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="max-w-2xl mx-auto">
         <Link 
-          to="/patientAcception" 
+          to={`/patientAcception?animalId=${animalId}`} 
           className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
         >
           ←
