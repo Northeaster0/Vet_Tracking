@@ -23,9 +23,10 @@ import WhatsWrong from './pages/WhatsWrong';
 import FindAnimals from './pages/FindAnimals';
 import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
 import Operations from './pages/Operations';
-// import PatientRaports from './pages/PatientRaports';
+import PatientReports from './pages/PatientReports';
 import logo from './logo.svg';
 import FunFacts from './components/FunFacts';
+import Anamnezs from './pages/Anamnezs';
 
 function App() {
   return (
@@ -110,6 +111,8 @@ function App() {
         <Route path="/findAnimals" element={<FindAnimals />} />
         <Route path="/doctorVaccineStatus" element={<DoctorVaccineStatus />} />
         <Route path="/operations" element={<Operations />} />
+        <Route path="/patient-raports" element={<PatientReports />} />
+        <Route path="/anamnezs" element={<Anamnezs />} />
       </Routes>
     </Router>
   );

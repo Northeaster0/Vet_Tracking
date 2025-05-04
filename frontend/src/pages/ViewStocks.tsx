@@ -5,6 +5,8 @@ interface StockItem {
   id: number;
   name: string;
   quantity: number;
+  PurchasePrice?: number;
+  SalePrice?: number;
 }
 
 interface MedicineItem {
@@ -12,44 +14,67 @@ interface MedicineItem {
   name: string;
 }
 
+interface VaccineItem {
+  id: number;
+  name: string;
+}
+
 const ViewStocks: React.FC = () => {
+  const [stockType, setStockType] = useState<'medicine' | 'vaccine'>('medicine');
   const [stockItems, setStockItems] = useState<StockItem[]>([]);
   const [medicineList, setMedicineList] = useState<MedicineItem[]>([]);
+  const [vaccineList, setVaccineList] = useState<VaccineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [addForm, setAddForm] = useState({ medicineId: '', quantity: '' });
-  const [reduceForm, setReduceForm] = useState({ medicineId: '', quantity: '' });
+  const [addForm, setAddForm] = useState({ itemId: '', quantity: '' });
+  const [reduceForm, setReduceForm] = useState({ itemId: '', quantity: '' });
   const [formMessage, setFormMessage] = useState('');
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showReduceModal, setShowReduceModal] = useState(false);
 
+  // Stokları getir
   const fetchStocks = async () => {
+    setLoading(true);
+    setError('');
     try {
-      const response = await fetch('http://localhost:5000/api/medicine-stocks');
-      const data = await response.json();
-      setStockItems(data);
+      let data;
+      if (stockType === 'medicine') {
+        const response = await fetch('http://localhost:5000/api/medicine-stocks');
+        data = await response.json();
+      } else {
+        const response = await fetch('http://localhost:5000/api/vaccine-stocks');
+        data = await response.json();
+      }
+      setStockItems(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (err) {
       setError('Stoklar getirilemedi!');
+      setStockItems([]);
       setLoading(false);
     }
   };
 
-  const fetchMedicines = async () => {
-    try {
+  // İlaç ve aşı listelerini getir
+  const fetchLists = async () => {
+    if (stockType === 'medicine') {
       const response = await fetch('http://localhost:5000/api/medicines');
       const data = await response.json();
       setMedicineList(data);
-    } catch (err) {
-      // hata gösterme
+    } else {
+      const response = await fetch('http://localhost:5000/api/vaccines');
+      const data = await response.json();
+      setVaccineList(data.map((v: any) => ({ id: v.id, name: v.Name || v.name })));
     }
   };
 
   useEffect(() => {
     fetchStocks();
-    fetchMedicines();
-  }, []);
+    fetchLists();
+    setAddForm({ itemId: '', quantity: '' });
+    setReduceForm({ itemId: '', quantity: '' });
+    setFormMessage('');
+  }, [stockType]);
 
   const handleAddChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -65,18 +90,24 @@ const ViewStocks: React.FC = () => {
     e.preventDefault();
     setFormMessage('');
     try {
-      const response = await fetch('http://localhost:5000/api/medicine-stocks/add', {
+      let url = '';
+      let body: any = {};
+      if (stockType === 'medicine') {
+        url = 'http://localhost:5000/api/medicine-stocks/add';
+        body = { medicineId: Number(addForm.itemId), quantity: Number(addForm.quantity) };
+      } else {
+        url = 'http://localhost:5000/api/vaccine-stocks/add';
+        body = { vaccineId: Number(addForm.itemId), quantity: Number(addForm.quantity) };
+      }
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          medicineId: Number(addForm.medicineId),
-          quantity: Number(addForm.quantity)
-        })
+        body: JSON.stringify(body)
       });
       const data = await response.json();
       if (data.success) {
         setFormMessage('Stok başarıyla eklendi!');
-        setAddForm({ medicineId: '', quantity: '' });
+        setAddForm({ itemId: '', quantity: '' });
         fetchStocks();
         setShowAddModal(false);
       } else {
@@ -91,18 +122,24 @@ const ViewStocks: React.FC = () => {
     e.preventDefault();
     setFormMessage('');
     try {
-      const response = await fetch('http://localhost:5000/api/medicine-stocks/reduce', {
+      let url = '';
+      let body: any = {};
+      if (stockType === 'medicine') {
+        url = 'http://localhost:5000/api/medicine-stocks/reduce';
+        body = { medicineId: Number(reduceForm.itemId), quantity: Number(reduceForm.quantity) };
+      } else {
+        url = 'http://localhost:5000/api/vaccine-stocks/reduce';
+        body = { vaccineId: Number(reduceForm.itemId), quantity: Number(reduceForm.quantity) };
+      }
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          medicineId: Number(reduceForm.medicineId),
-          quantity: Number(reduceForm.quantity)
-        })
+        body: JSON.stringify(body)
       });
       const data = await response.json();
       if (data.success) {
         setFormMessage('Stok başarıyla eksiltildi!');
-        setReduceForm({ medicineId: '', quantity: '' });
+        setReduceForm({ itemId: '', quantity: '' });
         fetchStocks();
         setShowReduceModal(false);
       } else {
@@ -128,11 +165,24 @@ const ViewStocks: React.FC = () => {
           ←
         </Link>
 
+        {/* Stok Tipi Seçimi */}
+        <div className="mb-6 flex items-center gap-4">
+          <label className="font-semibold text-blue-900">Stok Tipi:</label>
+          <select
+            value={stockType}
+            onChange={e => setStockType(e.target.value as 'medicine' | 'vaccine')}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="medicine">İlaç Stoku</option>
+            <option value="vaccine">Aşı Stoku</option>
+          </select>
+        </div>
+
         {/* Arama Çubuğu */}
         <div className="mb-6">
           <input
             type="text"
-            placeholder="İlaç ismine göre ara..."
+            placeholder={stockType === 'medicine' ? 'İlaç ismine göre ara...' : 'Aşı ismine göre ara...'}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -142,7 +192,7 @@ const ViewStocks: React.FC = () => {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="flex flex-row items-center justify-between mb-6 gap-4">
             <h2 className="text-2xl font-bold text-blue-900 flex-shrink-0">
-              Stok Durumu
+              {stockType === 'medicine' ? 'İlaç Stok Durumu' : 'Aşı Stok Durumu'}
             </h2>
             <div className="flex flex-row items-center gap-4">
               <button
@@ -174,12 +224,14 @@ const ViewStocks: React.FC = () => {
                   className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition duration-300"
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {item.name}
-                    </h3>
-                    <span className="text-blue-600 font-bold">
-                      {item.quantity} adet
-                    </span>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
+                      <span className="text-blue-600 font-bold">{item.quantity} adet</span>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 text-sm text-gray-700 ml-4">
+                      <span>Alış: <span className="font-semibold">{item.PurchasePrice ?? '-'}</span> ₺</span>
+                      <span>Satış: <span className="font-semibold">{item.SalePrice ?? '-'}</span> ₺</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -201,17 +253,17 @@ const ViewStocks: React.FC = () => {
               <form onSubmit={handleAddSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    İlaç Seç
+                    {stockType === 'medicine' ? 'İlaç Seç' : 'Aşı Seç'}
                   </label>
                   <select
-                    name="medicineId"
-                    value={addForm.medicineId}
+                    name="itemId"
+                    value={addForm.itemId}
                     onChange={handleAddChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
-                    <option value="">İlaç seçiniz</option>
-                    {medicineList.map(item => (
+                    <option value="">{stockType === 'medicine' ? 'İlaç seçiniz' : 'Aşı seçiniz'}</option>
+                    {(stockType === 'medicine' ? medicineList : vaccineList).map(item => (
                       <option key={item.id} value={item.id}>{item.name}</option>
                     ))}
                   </select>
@@ -258,17 +310,17 @@ const ViewStocks: React.FC = () => {
               <form onSubmit={handleReduceSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    İlaç Seç
+                    {stockType === 'medicine' ? 'İlaç Seç' : 'Aşı Seç'}
                   </label>
                   <select
-                    name="medicineId"
-                    value={reduceForm.medicineId}
+                    name="itemId"
+                    value={reduceForm.itemId}
                     onChange={handleReduceChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
-                    <option value="">İlaç seçiniz</option>
-                    {stockItems.map(item => (
+                    <option value="">{stockType === 'medicine' ? 'İlaç seçiniz' : 'Aşı seçiniz'}</option>
+                    {(stockType === 'medicine' ? medicineList : vaccineList).map(item => (
                       <option key={item.id} value={item.id}>{item.name}</option>
                     ))}
                   </select>

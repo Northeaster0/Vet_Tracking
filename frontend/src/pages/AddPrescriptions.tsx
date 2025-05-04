@@ -73,7 +73,8 @@ const AddPrescriptions: React.FC = () => {
       AnimalID: Number(animalId),
       Method: formData.applicationMethod,
       Dose: formData.dose,
-      Frequency
+      Frequency,
+      medicineId: Number(formData.medicineId)
     };
     try {
       const response = await fetch('http://localhost:5000/api/prescriptions', {

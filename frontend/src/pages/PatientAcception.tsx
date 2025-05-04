@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const PatientAcception: React.FC = () => {
   const [animalInfo, setAnimalInfo] = useState<any>(null);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!animalId) return;
@@ -22,12 +23,13 @@ const PatientAcception: React.FC = () => {
   const actionButtons = [
     { title: 'Randevu Al', path: `/addAppointment?animalId=${animalInfo.AnimalID}`, color: 'bg-blue-600 hover:bg-blue-700' },
     { title: 'Radyoloji ve Labaratuvar Sonuçları ', path: `/tests?animalId=${animalInfo.AnimalID}`, color: 'bg-green-600 hover:bg-green-700' },
-    { title: 'Geçmiş', path: `/animalHistory?animalId=${animalInfo.AnimalID}`, color: 'bg-purple-600 hover:bg-purple-700' },
+    { title: 'Geçmiş Reçeteler', path: `/animalHistory?animalId=${animalInfo.AnimalID}`, color: 'bg-purple-600 hover:bg-purple-700' },
     { title: 'Reçete Ekle', path: `/addPrescriptions?animalId=${animalInfo.AnimalID}`, color: 'bg-yellow-600 hover:bg-yellow-700' },
     { title: 'Bilgileri Düzenle', path: `/editPatientInfo?animalId=${animalInfo.AnimalID}`, color: 'bg-indigo-600 hover:bg-indigo-700' },
     { title: 'Aşı', path: `/doctorVaccineStatus?animalId=${animalInfo.AnimalID}`, color: 'bg-red-600 hover:bg-red-700' },
     { title: 'Raporlarım', path: `/patient-raports?animalId=${animalInfo.AnimalID}`, color: 'bg-pink-600 hover:bg-pink-700' },
-    { title: 'Operasyonlar', path: `/operations?animalId=${animalInfo.AnimalID}`, color: 'bg-gray-600 hover:bg-gray-700' }
+    { title: 'Geçmiş Operasyonlar', path: `/operations?animalId=${animalInfo.AnimalID}`, color: 'bg-gray-600 hover:bg-gray-700' },
+    { title: 'Anamnezler', path: `/anamnezs?animalId=${animalInfo.AnimalID}`, color: 'bg-blue-700 hover:bg-blue-800' }
   ];
 
   return (

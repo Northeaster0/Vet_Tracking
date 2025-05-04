@@ -1,12 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface Vaccine {
+  VaccineForAnimalID: number;
+  Name: string;
+  Type: string;
+  Description: string;
+  VaccineID: number;
+}
+
+interface AvailableVaccine {
+  VaccineID: number;
+  Name: string;
+  Type: string;
+  ApplicationMethod: string;
+  Description: string;
+}
+
+interface VaccineListItem {
   id: number;
   name: string;
-  date: string;
-  nextDate: string;
-  status: 'Yaklaşıyor' | 'Gecikmiş' | 'Tamamlandı';
 }
 
 const DoctorVaccineStatus: React.FC = () => {
@@ -14,68 +27,53 @@ const DoctorVaccineStatus: React.FC = () => {
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
 
-  // Örnek aşı listesi (ileride veritabanından gelecek)
-  const vaccineTypes = [
-    { id: 1, name: 'Kuduz Aşısı' },
-    { id: 2, name: 'Karma Aşı' },
-    { id: 3, name: 'Lyme Aşısı' }
-  ];
+  const [doneVaccines, setDoneVaccines] = useState<Vaccine[]>([]);
+  const [vaccineList, setVaccineList] = useState<VaccineListItem[]>([]);
+  const [selectedVaccineId, setSelectedVaccineId] = useState('');
+  const [message, setMessage] = useState('');
 
-  // Örnek aşı verileri
-  const [vaccines, setVaccines] = useState<Vaccine[]>([
-    {
-      id: 1,
-      name: 'Kuduz Aşısı',
-      date: '2024-01-15',
-      nextDate: '2024-01-15',
-      status: 'Gecikmiş'
-    },
-    {
-      id: 2,
-      name: 'Karma Aşı',
-      date: '2024-02-20',
-      nextDate: '2024-02-20',
-      status: 'Yaklaşıyor'
-    },
-    {
-      id: 3,
-      name: 'Lyme Aşısı',
-      date: '2024-03-10',
-      nextDate: '2024-03-10',
-      status: 'Yaklaşıyor'
-    }
-  ]);
+  const fetchVaccines = async () => {
+    if (!animalId) return;
+    // Yapılan aşılar
+    const done = await fetch(`http://localhost:5000/api/animal-vaccines/${animalId}`).then(res => res.json());
+    setDoneVaccines(done);
+    // Tüm aşılar
+    const allVaccines = await fetch('http://localhost:5000/api/vaccines').then(res => res.json());
+    setVaccineList(allVaccines.map((v: any) => ({ id: v.id ?? v.VaccineID, name: v.name ?? v.Name })));
+    setSelectedVaccineId('');
+  };
 
-  const [newVaccine, setNewVaccine] = useState({
-    name: '',
-    date: '',
-    nextDate: ''
-  });
+  useEffect(() => {
+    fetchVaccines();
+    // eslint-disable-next-line
+  }, [animalId]);
 
-  const handleAddVaccine = () => {
-    if (newVaccine.name && newVaccine.date && newVaccine.nextDate) {
-      const vaccine: Vaccine = {
-        id: vaccines.length + 1,
-        name: newVaccine.name,
-        date: newVaccine.date,
-        nextDate: newVaccine.nextDate,
-        status: 'Yaklaşıyor'
-      };
-      setVaccines([...vaccines, vaccine]);
-      setNewVaccine({ name: '', date: '', nextDate: '' });
+  const handleAddVaccine = async () => {
+    if (!selectedVaccineId) return;
+    const res = await fetch('http://localhost:5000/api/animal-vaccines', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ animalId, vaccineId: selectedVaccineId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setMessage('Aşı başarıyla eklendi!');
+      fetchVaccines();
+    } else {
+      setMessage(data.error || 'Aşı eklenemedi!');
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Yaklaşıyor':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Gecikmiş':
-        return 'bg-red-100 text-red-800';
-      case 'Tamamlandı':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const handleDeleteVaccine = async (vaccineForAnimalId: number) => {
+    const res = await fetch(`http://localhost:5000/api/animal-vaccines/${vaccineForAnimalId}`, {
+      method: 'DELETE',
+    });
+    const data = await res.json();
+    if (data.success) {
+      setMessage('Aşı kaydı silindi!');
+      fetchVaccines();
+    } else {
+      setMessage(data.error || 'Aşı kaydı silinemedi!');
     }
   };
 
@@ -91,24 +89,28 @@ const DoctorVaccineStatus: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Aşı Takibi
+            Yapılan Aşılar
           </h2>
-
           <div className="space-y-4">
-            {vaccines.map((vaccine) => (
-              <div key={vaccine.id} className="border rounded-lg p-4 hover:shadow-md transition duration-300">
-                <div className="flex justify-between items-start">
+            {doneVaccines.length === 0 ? (
+              <div className="text-gray-500">Bu hayvana henüz aşı yapılmamış.</div>
+            ) : (
+              doneVaccines.map((vaccine) => (
+                <div key={vaccine.VaccineForAnimalID} className="border rounded-lg p-4 hover:shadow-md transition duration-300 flex justify-between items-center">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800">{vaccine.name}</h3>
-                    <p className="text-sm text-gray-600">Son Aşı Tarihi: {vaccine.date}</p>
-                    <p className="text-sm text-gray-600">Sonraki Aşı Tarihi: {vaccine.nextDate}</p>
+                    <h3 className="text-lg font-semibold text-gray-800">{vaccine.Name}</h3>
+                    <p className="text-sm text-gray-600">Tip: {vaccine.Type}</p>
+                    <p className="text-sm text-gray-600">Açıklama: {vaccine.Description}</p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(vaccine.status)}`}>
-                    {vaccine.status}
-                  </span>
+                  <button
+                    onClick={() => handleDeleteVaccine(vaccine.VaccineForAnimalID)}
+                    className="ml-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
+                  >
+                    Sil
+                  </button>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -119,49 +121,29 @@ const DoctorVaccineStatus: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Aşı Adı
+                Aşı Seçiniz
               </label>
               <select
-                value={newVaccine.name}
-                onChange={(e) => setNewVaccine({ ...newVaccine, name: e.target.value })}
+                value={selectedVaccineId}
+                onChange={e => setSelectedVaccineId(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Aşı seçin</option>
-                {vaccineTypes.map((vaccine) => (
-                  <option key={vaccine.id} value={vaccine.name}>
+                {vaccineList.map((vaccine) => (
+                  <option key={vaccine.id} value={vaccine.id}>
                     {vaccine.name}
                   </option>
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Aşı Tarihi
-              </label>
-              <input
-                type="date"
-                value={newVaccine.date}
-                onChange={(e) => setNewVaccine({ ...newVaccine, date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sonraki Aşı Tarihi
-              </label>
-              <input
-                type="date"
-                value={newVaccine.nextDate}
-                onChange={(e) => setNewVaccine({ ...newVaccine, nextDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
             <button
               onClick={handleAddVaccine}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+              disabled={!selectedVaccineId}
             >
               Aşı Ekle
             </button>
+            {message && <div className="mt-2 text-center text-blue-900 font-semibold">{message}</div>}
           </div>
         </div>
       </div>

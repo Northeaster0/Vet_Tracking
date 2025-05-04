@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 // Örnek veriler (ileride API'den gelecek)
@@ -28,10 +28,19 @@ const EditPatientInfo: React.FC = () => {
     color: animalInfo.color,
     allergies: animalInfo.allergies
   });
+  const [animalTypes, setAnimalTypes] = useState<{ AnimalTypeID: number, Species: string, Breed: string }[]>([]);
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/animal-types')
+      .then(res => res.json())
+      .then(data => setAnimalTypes(data));
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -41,10 +50,55 @@ const EditPatientInfo: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // İleride API çağrısı yapılacak
-    console.log('Güncellenen bilgiler:', formData);
+    setMessage('');
+    setIsError(false);
+    // AnimalTypeID bul
+    const selectedType = animalTypes.find(
+      t =>
+        t.Species.trim().toLowerCase() === formData.type.trim().toLowerCase() &&
+        t.Breed.trim().toLowerCase() === formData.breed.trim().toLowerCase()
+    );
+    if (!selectedType) {
+      console.log('formData.type:', formData.type, 'formData.breed:', formData.breed);
+      console.log('animalTypes:', animalTypes);
+      setMessage('Tür ve ırk eşleşmesi bulunamadı!');
+      setIsError(true);
+      return;
+    }
+    // Yaştan doğum tarihi hesapla
+    const age = parseInt(formData.age);
+    const today = new Date();
+    const birthYear = today.getFullYear() - age;
+    const dateOfBirth = `${birthYear}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`;
+    const payload = {
+      name: formData.animalName,
+      gender: formData.gender,
+      dateOfBirth,
+      weight: formData.weight,
+      color: formData.color,
+      passportNumber: formData.passportNo,
+      animalTypeId: selectedType.AnimalTypeID
+    };
+    try {
+      const response = await fetch(`http://localhost:5000/api/animals/${animalId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage('Bilgiler başarıyla güncellendi!');
+        setIsError(false);
+      } else {
+        setMessage(data.message || 'Bilgiler güncellenemedi!');
+        setIsError(true);
+      }
+    } catch (err) {
+      setMessage('Sunucuya bağlanılamadı!');
+      setIsError(true);
+    }
   };
 
   return (
@@ -229,6 +283,10 @@ const EditPatientInfo: React.FC = () => {
               Bilgileri Güncelle
             </button>
           </form>
+
+          {message && (
+            <div className={`mt-4 text-center font-semibold ${isError ? 'text-red-600' : 'text-green-700'}`}>{message}</div>
+          )}
         </div>
       </div>
     </div>
