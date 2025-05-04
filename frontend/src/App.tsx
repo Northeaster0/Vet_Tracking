@@ -30,6 +30,7 @@ import Anamnezs from './pages/Anamnezs';
 import VeterinarianOnCall from './pages/VeterinarianOnCall';
 import PatientAppointment from './pages/PatientAppointment';
 
+
 function App() {
   return (
     <Router>

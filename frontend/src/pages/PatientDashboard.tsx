@@ -7,20 +7,20 @@ const PatientDashboard: React.FC = () => {
   const [selectedAnimal, setSelectedAnimal] = useState<number | null>(null);
   const [showAnimalInfo, setShowAnimalInfo] = useState(false);
   const [selectedAnimalData, setSelectedAnimalData] = useState<any>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const navigationButtons = [
-    { title: 'Profil', path: '/patientProfile', color: 'bg-blue-600 hover:bg-blue-700' },
-    { title: 'Reçete Geçmişi', path: '/patientPrescriptionsHistory', color: 'bg-green-600 hover:bg-green-700' },
-    { title: 'Radyolojik ve Labaratuvar Sonuçları', path: '/patientTestResults', color: 'bg-purple-600 hover:bg-purple-700' },
-    { title: 'Aşı Durumu', path: '/patientVaccineStatus', color: 'bg-yellow-600 hover:bg-yellow-700' },
-    { title: 'Nöbetçi Veterinerler', path: '/veterinarian-on-call', color: 'bg-pink-600 hover:bg-pink-700' },
-    { title: 'RandevuAl', path: '/patientAppointment', color: 'bg-orange-600 hover:bg-orange-700' },
-    { title: 'Çıkış Yap', path: '/', color: 'bg-red-600 hover:bg-red-700' }
+    { title: 'Profil', path: '/patientProfile', icon: '👤', color: 'bg-blue-600 hover:bg-blue-700' },
+    { title: 'Reçete Geçmişi', path: '/patientPrescriptionsHistory', icon: '💊', color: 'bg-green-600 hover:bg-green-700' },
+    { title: 'Radyoloji ve Labaratuvar Sonuçları', path: '/patientTestResults', icon: '🔬', color: 'bg-purple-600 hover:bg-purple-700' },
+    { title: 'Aşı Durumu', path: '/patientVaccineStatus', icon: '💉', color: 'bg-yellow-600 hover:bg-yellow-700' },
+    { title: 'Nöbetçi Veterinerler', path: '/veterinarian-on-call', icon: '🩺', color: 'bg-pink-600 hover:bg-pink-700' },
+    { title: 'RandevuAl', path: '/patientAppointment', icon: '📅', color: 'bg-orange-600 hover:bg-orange-700' },
+    { title: 'Çıkış Yap', path: '/', icon: '🚪', color: 'bg-red-600 hover:bg-red-700' }
   ];
 
-  // Yaş hesaplama fonksiyonu
   const calculateAge = (dateOfBirth: string) => {
     const birth = new Date(dateOfBirth);
     const today = new Date();
@@ -43,7 +43,6 @@ const PatientDashboard: React.FC = () => {
         .then(res => res.json())
         .then(data => {
           setAnimals(data);
-          // Eğer URL'de animalId varsa, onu seçili yap
           if (animalIdParam) {
             const found = data.find((a: any) => a.AnimalID === parseInt(animalIdParam));
             if (found) {
@@ -64,89 +63,133 @@ const PatientDashboard: React.FC = () => {
     setSelectedAnimalData(animal);
   };
 
-  const handleLogout = () => {
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
     navigate('/');
   };
 
-  // Render fonksiyonunun başı
-  console.log('selectedAnimalData:', selectedAnimalData);
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Üst Kısım */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-blue-900">
-              Müşteri: {userInfo ? `${userInfo.FName} ${userInfo.LName}` : ''}
-            </h1>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">Müşteri Paneli</h2>
+              <p className="text-sm text-gray-500">Hasta bilgilerinizi ve işlemlerinizi görüntüleyin</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
             <Link
               to="/whatsWrong"
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300"
+              className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
-              Sorun Bildir
+              <span>⚠️</span>
+              <span>Sorun Bildir</span>
             </Link>
-          </div>
-          <p className="text-gray-600 mb-4">Lütfen hayvanınızı seçiniz</p>
-
-          {/* Hayvan Seçim Dropdown */}
-          <div className="mb-6">
-            <select
-              value={selectedAnimal || ''}
-              onChange={handleAnimalChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className="text-gray-500 hover:text-[#d68f13] transition duration-300 flex items-center space-x-2"
             >
-              <option value="">Hayvan Seçiniz</option>
-              {animals.map((animal) => (
-                <option key={animal.AnimalID} value={animal.AnimalID}>
-                  {animal.Name} ({animal.Type || animal.Species || ''})
-                </option>
-              ))}
-            </select>
+              <span>🚪</span>
+              <span>Çıkış</span>
+            </button>
           </div>
+        </div>
 
-          {/* Seçilen Hayvan Bilgileri */}
-          {showAnimalInfo && selectedAnimalData && (
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-              <h2 className="text-xl font-bold text-blue-900 mb-4">{selectedAnimalData.Name}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">
-                    <span className="font-semibold text-gray-800">Tür:</span> {selectedAnimalData.Type}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-semibold text-gray-800">Irk:</span> {selectedAnimalData.Breed}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-semibold text-gray-800">Cinsiyet:</span> {selectedAnimalData.Gender}
-                  </p>
+        {/* Logout Confirmation Modal */}
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[#d68f13]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">🚪</span>
                 </div>
-                <div>
-                  <p className="text-gray-600">
-                    <span className="font-semibold text-gray-800">Yaş:</span> {selectedAnimalData.DateOfBirth ? calculateAge(selectedAnimalData.DateOfBirth) : ''}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-semibold text-gray-800">Pasaport No:</span> {selectedAnimalData.PassportNumber}
-                  </p>
-                  <p className="text-gray-600">
-                    <span className="font-semibold text-gray-800">Kilo:</span> {selectedAnimalData.Weight}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-gray-600">
-                    <span className="font-semibold text-gray-800">Renk:</span> {selectedAnimalData.Color}
-                  </p>
-                  <p className="text-gray-600 mb-2">
-                    <span className="font-semibold text-gray-800">Alerjiler:</span> {selectedAnimalData.Allergies || 'Yok'}
-                  </p>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Çıkış Yapmak İstiyor Musunuz?</h3>
+                <p className="text-gray-600 mb-6">Oturumunuz sonlandırılacak.</p>
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={() => setShowLogoutConfirm(false)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition duration-300"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={confirmLogout}
+                    className="px-4 py-2 bg-[#d68f13] text-white rounded-lg hover:bg-[#b8770f] transition duration-300"
+                  >
+                    Çıkış Yap
+                  </button>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Animal Selection */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Hayvan Seçimi</h3>
+          <select
+            value={selectedAnimal || ''}
+            onChange={handleAnimalChange}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
+          >
+            <option value="">Hayvan Seçiniz</option>
+            {animals.map((animal) => (
+              <option key={animal.AnimalID} value={animal.AnimalID}>
+                {animal.Name} ({animal.Type || animal.Species || ''})
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Navigasyon Butonları */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {/* Selected Animal Info */}
+        {showAnimalInfo && selectedAnimalData && (
+          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 group hover:shadow-xl transition duration-300">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <span className="bg-[#d68f13]/10 p-2 rounded-lg mr-3">
+                {selectedAnimalData.Type === 'Kedi' ? '🐱' : '🐶'}
+              </span>
+              {selectedAnimalData.Name}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Tür:</span> {selectedAnimalData.Type}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Irk:</span> {selectedAnimalData.Breed}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Cinsiyet:</span> {selectedAnimalData.Gender}
+                </p>
+              </div>
+              <div className="space-y-3">
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Yaş:</span> {selectedAnimalData.DateOfBirth ? calculateAge(selectedAnimalData.DateOfBirth) : '-'}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Pasaport No:</span> {selectedAnimalData.PassportNumber}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Kilo:</span> {selectedAnimalData.Weight || '-'} kg
+                </p>
+              </div>
+              <div className="col-span-2 space-y-3">
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Renk:</span> {selectedAnimalData.Color}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-semibold text-gray-800">Alerjiler:</span> {selectedAnimalData.Allergies || 'Yok'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {navigationButtons.map((button, index) => (
             <Link
               key={index}
@@ -155,11 +198,12 @@ const PatientDashboard: React.FC = () => {
                   ? `${button.path}?animalId=${selectedAnimal}`
                   : button.path
               }
-              onClick={button.title === 'Çıkış Yap' ? handleLogout : undefined}
+              onClick={button.title === 'Çıkış Yap' ? confirmLogout : undefined}
               className={`${button.color} text-white p-4 rounded-lg shadow-lg transform transition duration-300 hover:scale-105 flex items-center justify-center text-center ${
                 (button.title !== 'Çıkış Yap' && button.title !== 'Profil' && !selectedAnimal) ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
               }`}
             >
+              <span className="mr-2 text-xl">{button.icon}</span>
               <span className="text-lg font-semibold">{button.title}</span>
             </Link>
           ))}
@@ -169,4 +213,4 @@ const PatientDashboard: React.FC = () => {
   );
 };
 
-export default PatientDashboard; 
+export default PatientDashboard;
