@@ -180,14 +180,14 @@ const AddAppointment: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <Link 
           to={`/patientAcception?animalId=${animalId}`} 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
+          className="text-[#b8770f] hover:text-[#b8770f] text-3xl font-bold mb-4 inline-block"
         >
           ←
         </Link>
 
         {/* Takvim görünümü */}
         <div className="mt-10">
-          <h3 className="text-xl font-bold text-blue-900 mb-4">Randevu Takvimi</h3>
+          <h3 className="text-xl font-bold text-[#b8770f] mb-4">Randevu Takvimi</h3>
           <Calendar
             localizer={localizer}
             events={events}
@@ -228,7 +228,7 @@ const AddAppointment: React.FC = () => {
               </div>
               <div className="flex justify-end gap-2">
                 <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">İptal</button>
-                <button onClick={handleModalSave} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Kaydet</button>
+                <button onClick={handleModalSave} className="px-4 py-2 bg-[#b8770f] text-white rounded hover:bg-[#b8770f]">Kaydet</button>
               </div>
             </div>
           </div>
