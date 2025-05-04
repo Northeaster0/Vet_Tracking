@@ -23,6 +23,7 @@ import WhatsWrong from './pages/WhatsWrong';
 import FindAnimals from './pages/FindAnimals';
 import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
 import PatientRaports from './pages/PatientRaports';
+import Operations from './pages/Operations';
 
 function App() {
   return (
@@ -76,6 +77,7 @@ function App() {
         <Route path="/findAnimals" element={<FindAnimals />} />
         <Route path="/doctorVaccineStatus" element={<DoctorVaccineStatus />} />
         <Route path="/patient-raports" element={<PatientRaports />} />
+        <Route path="/operations" element={<Operations />} />
       </Routes>
     </Router>
   );

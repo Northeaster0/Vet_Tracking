@@ -1,58 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-// Örnek hayvan verileri (ileride API'den gelecek)
-const animals = [
-  {
-    id: 1,
-    name: 'Pamuk',
-    owner: 'Ayşe Yılmaz',
-    species: 'Kedi',
-    breed: 'Tekir',
-    passportNo: 'TR123456789',
-    age: '3',
-    gender: 'Dişi',
-    weight: '4.2 kg',
-    color: 'Beyaz',
-    allergies: 'Yok'
-  },
-  {
-    id: 2,
-    name: 'Karabaş',
-    owner: 'Mehmet Demir',
-    species: 'Köpek',
-    breed: 'Golden Retriever',
-    passportNo: 'TR987654321',
-    age: '5',
-    gender: 'Erkek',
-    weight: '25 kg',
-    color: 'Altın',
-    allergies: 'Yok'
-  },
-  {
-    id: 3,
-    name: 'Minnoş',
-    owner: 'Zeynep Kaya',
-    species: 'Kedi',
-    breed: 'British Shorthair',
-    passportNo: 'TR456789123',
-    age: '2',
-    gender: 'Dişi',
-    weight: '3.8 kg',
-    color: 'Gri',
-    allergies: 'Yok'
-  }
-];
 
 const FindAnimals: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [animalList, setAnimalList] = useState<any[]>([]);
 
-  const filteredAnimals = animals.filter(animal => {
+  useEffect(() => {
+    fetch('http://localhost:5000/api/animals/with-details')
+      .then(res => res.json())
+      .then(data => setAnimalList(data));
+  }, []);
+
+  const filteredAnimals = animalList.filter(animal => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      animal.name.toLowerCase().includes(searchLower) ||
-      animal.owner.toLowerCase().includes(searchLower) ||
-      animal.species.toLowerCase().includes(searchLower) ||
+      animal.animalName.toLowerCase().includes(searchLower) ||
+      animal.ownerName.toLowerCase().includes(searchLower) ||
+      animal.type.toLowerCase().includes(searchLower) ||
       animal.breed.toLowerCase().includes(searchLower) ||
       animal.passportNo.toLowerCase().includes(searchLower)
     );
@@ -93,20 +57,20 @@ const FindAnimals: React.FC = () => {
         <div className="space-y-4">
           {filteredAnimals.map((animal) => (
             <Link
-              key={animal.id}
-              to={`/patientAcception?animalId=${animal.id}`}
+              key={animal.AnimalID}
+              to={`/patientAcception?animalId=${animal.AnimalID}`}
               className="block bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {animal.name}
+                    {animal.animalName}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Sahip:</span> {animal.owner}
+                    <span className="font-medium text-gray-800">Sahip:</span> {animal.ownerName}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Tür:</span> {animal.species}
+                    <span className="font-medium text-gray-800">Tür:</span> {animal.type}
                   </p>
                   <p className="text-sm text-gray-600">
                     <span className="font-medium text-gray-800">Irk:</span> {animal.breed}
@@ -123,7 +87,7 @@ const FindAnimals: React.FC = () => {
                     <span className="font-medium text-gray-800">Cinsiyet:</span> {animal.gender}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-800">Kilo:</span> {animal.weight}
+                    <span className="font-medium text-gray-800">Kilo:</span> {animal.weight} kg
                   </p>
                 </div>
               </div>
