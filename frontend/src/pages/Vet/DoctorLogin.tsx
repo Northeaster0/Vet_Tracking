@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import FunFacts from '../components/FunFacts';
-import logo from '../logo.svg';
+import FunFacts from '../../components/FunFacts';
+import logo from '../../logo.svg';
 
 const DoctorLogin: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -56,8 +56,7 @@ const DoctorLogin: React.FC = () => {
           </svg>
           {/* Logo ve şirket ismi pati ikonunun üstünde, ortalanmış */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
-            <img src={logo} alt="Logo" className="w-20 h-20 mb-2 drop-shadow-lg" />
-            <span className="text-white text-2xl font-bold tracking-widest">VETPACK</span>
+            <span className="text-white text-2xl font-bold tracking-widest">VETCARE</span>
           </div>
           {/* FunFacts sol panelin altında ortalanmış ve sabit kutuda */}
           <div className="w-full flex justify-center items-end z-10 absolute bottom-8 left-0">

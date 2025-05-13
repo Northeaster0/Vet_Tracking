@@ -102,24 +102,41 @@ const EditPatientInfo: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-2xl mx-auto">
-        <Link 
-          to={`/patientAcception?animalId=${animalId}`} 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-2xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">✏️</span> Hasta Bilgilerini Düzenle
+              </h2>
+              <p className="text-sm text-gray-500">Hasta bilgilerini güncelleyin</p>
+            </div>
+          </div>
+          <Link
+            to={`/patientAcception?animalId=${animalId}`}
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
+        </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Hasta Bilgilerini Düzenle
-          </h2>
+        {/* Message Display */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-xl text-center font-semibold ${isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+            {message}
+          </div>
+        )}
 
+        {/* Ana Kart */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="ownerName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="ownerName" className="block text-sm font-medium text-gray-700 mb-2">
                   Sahip İsmi
                 </label>
                 <input
@@ -128,13 +145,13 @@ const EditPatientInfo: React.FC = () => {
                   name="ownerName"
                   value={formData.ownerName}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="animalName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="animalName" className="block text-sm font-medium text-gray-700 mb-2">
                   Hayvan İsmi
                 </label>
                 <input
@@ -143,13 +160,13 @@ const EditPatientInfo: React.FC = () => {
                   name="animalName"
                   value={formData.animalName}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="passportNo" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="passportNo" className="block text-sm font-medium text-gray-700 mb-2">
                   Pasaport No
                 </label>
                 <input
@@ -158,13 +175,13 @@ const EditPatientInfo: React.FC = () => {
                   name="passportNo"
                   value={formData.passportNo}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
                   Yaş
                 </label>
                 <input
@@ -174,13 +191,13 @@ const EditPatientInfo: React.FC = () => {
                   value={formData.age}
                   onChange={handleChange}
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
                   Tür
                 </label>
                 <select
@@ -188,7 +205,7 @@ const EditPatientInfo: React.FC = () => {
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 >
                   <option value="Kedi">Kedi</option>
@@ -199,7 +216,7 @@ const EditPatientInfo: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="breed" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="breed" className="block text-sm font-medium text-gray-700 mb-2">
                   Irk
                 </label>
                 <input
@@ -208,13 +225,13 @@ const EditPatientInfo: React.FC = () => {
                   name="breed"
                   value={formData.breed}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
                   Cinsiyet
                 </label>
                 <select
@@ -222,7 +239,7 @@ const EditPatientInfo: React.FC = () => {
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 >
                   <option value="Dişi">Dişi</option>
@@ -231,7 +248,7 @@ const EditPatientInfo: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-2">
                   Kilo
                 </label>
                 <input
@@ -240,13 +257,13 @@ const EditPatientInfo: React.FC = () => {
                   name="weight"
                   value={formData.weight}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-2">
                   Renk
                 </label>
                 <input
@@ -255,13 +272,13 @@ const EditPatientInfo: React.FC = () => {
                   name="color"
                   value={formData.color}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="allergies" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="allergies" className="block text-sm font-medium text-gray-700 mb-2">
                   Alerjiler
                 </label>
                 <input
@@ -270,7 +287,7 @@ const EditPatientInfo: React.FC = () => {
                   name="allergies"
                   value={formData.allergies}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                   required
                 />
               </div>
@@ -278,15 +295,11 @@ const EditPatientInfo: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 mt-6"
+              className="w-full bg-[#d68f13] text-white py-3 px-4 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-[1.02] shadow-lg font-semibold"
             >
               Bilgileri Güncelle
             </button>
           </form>
-
-          {message && (
-            <div className={`mt-4 text-center font-semibold ${isError ? 'text-red-600' : 'text-green-700'}`}>{message}</div>
-          )}
         </div>
       </div>
     </div>

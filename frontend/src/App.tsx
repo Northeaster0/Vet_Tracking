@@ -1,34 +1,34 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import DoctorLogin from './pages/DoctorLogin';
-import PatientLogin from './pages/PatientLogin';
-import AnimalProcess from './pages/AnimalProcess';
-import PatientAcception from './pages/PatientAcception';
-import AddAnimal from './pages/AddAnimal';
-import AddClient from './pages/AddClient';
+import DoctorLogin from './pages/Vet/DoctorLogin';
+import PatientLogin from './pages/Patient/PatientLogin';
+import AnimalProcess from './pages/Vet/AnimalProcess';
+import PatientAcception from './pages/Vet/PatientAcception';
+import AddAnimal from './pages/Vet/AddAnimal';
+import AddClient from './pages/Vet/AddClient';
 import ViewStocks from './pages/ViewStocks';
-import History from './pages/History';
-import DeletePatient from './pages/DeletePatient';
-import AddAppointment from './pages/AddAppointment';
-import Tests from './pages/Tests';
+import History from './pages/Vet/History';
+import DeletePatient from './pages/Vet/DeletePatient';
+import AddAppointment from './pages/Vet/AddAppointment';
+import Tests from './pages/Vet/Tests';
 import AnimalHistory from './pages/AnimalHistory';
-import AddPrescriptions from './pages/AddPrescriptions';
-import EditPatientInfo from './pages/EditPatientInfo';
-import PatientDashboard from './pages/PatientDashboard';
-import ClientProfile from './pages/ClientProfile';
-import PatientPrescriptionsHistory from './pages/PatientPrescriptionsHistory';
-import PatientTestResults from './pages/PatientTestResults';
-import PatientVaccineStatus from './pages/PatientVaccineStatus';
+import AddPrescriptions from './pages/Vet/AddPrescriptions';
+import EditPatientInfo from './pages/Vet/EditPatientInfo';
+import PatientDashboard from './pages/Patient/PatientDashboard';
+import ClientProfile from './pages/Patient/ClientProfile';
+import PatientPrescriptionsHistory from './pages/Patient/PatientPrescriptionsHistory';
+import PatientTestResults from './pages/Patient/PatientTestResults';
+import PatientVaccineStatus from './pages/Patient/PatientVaccineStatus';
 import WhatsWrong from './pages/WhatsWrong';
-import FindAnimals from './pages/FindAnimals';
-import DoctorVaccineStatus from './pages/DoctorVaccineStatus';
-import Operations from './pages/Operations';
-import PatientReports from './pages/PatientReports';
+import FindAnimals from './pages/Vet/FindAnimals';
+import DoctorVaccineStatus from './pages/Vet/DoctorVaccineStatus';
+import Operations from './pages/Vet/Operations';
+import PatientReports from './pages/Patient/PatientReports';
 import logo from './logo.svg';
 import FunFacts from './components/FunFacts';
-import Anamnezs from './pages/Anamnezs';
-import VeterinarianOnCall from './pages/VeterinarianOnCall';
-import PatientAppointment from './pages/PatientAppointment';
+import Anamnezs from './pages/Vet/Anamnezs';
+import VeterinarianOnCall from './pages/Patient/VeterinarianOnCall';
+import PatientAppointment from './pages/Patient/PatientAppointment';
 
 
 function App() {
@@ -50,8 +50,7 @@ function App() {
               </svg>
               {/* Logo ve marka ismi pati üstünde */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
-                <img src={logo} alt="Logo" className="w-20 h-20 mb-2 drop-shadow-lg" />
-                <span className="text-white text-2xl font-bold tracking-widest">VETPACK</span>
+                <span className="text-white text-2xl font-bold tracking-widest">VETCARE</span>
               </div>
               {/* FunFacts sol panelin altında ortalanmış ve sabit kutuda */}
               <div className="w-full flex justify-center items-end z-10 absolute bottom-8 left-0">

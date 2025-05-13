@@ -61,7 +61,6 @@ const FindAnimals: React.FC = () => {
               to="/whatsWrong"
               className="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
-
               <span>Neyi Var Ki?</span>
             </Link>
           </div>

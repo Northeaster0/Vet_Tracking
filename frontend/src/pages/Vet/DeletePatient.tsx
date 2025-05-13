@@ -20,7 +20,7 @@ const DeletePatient: React.FC = () => {
     const term = e.target.value;
     setSearchTerm(term);
     const filtered = patients.filter(patient => 
-      patient.animalName.toLowerCase().includes(term.toLowerCase())
+      patient.Name.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredPatients(filtered);
   };
@@ -41,27 +41,42 @@ const DeletePatient: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-4xl mx-auto">
-        <Link 
-          to="/animal-process" 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">❌</span> Hasta Sil
+              </h2>
+              <p className="text-sm text-gray-500">Sistemdeki bir hastayı kalıcı olarak silin</p>
+            </div>
+          </div>
+          <Link
+            to="/animal-process"
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
+        </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Hasta Sil
-          </h2>
+        {/* Message Display */}
+        {message && (
+          <div className="mb-6 p-4 rounded-xl bg-green-100 text-green-800 text-center font-semibold">{message}</div>
+        )}
 
+        {/* Ana Kart */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="mb-6">
             <input
               type="text"
               placeholder="Hasta ismi ile arama yapın..."
               value={searchTerm}
               onChange={handleSearch}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
             />
           </div>
 
@@ -69,23 +84,21 @@ const DeletePatient: React.FC = () => {
             {filteredPatients.map((patient) => (
               <div 
                 key={patient.AnimalID}
-                className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-red-300 transition duration-300 cursor-pointer"
+                className="bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-red-300 transition duration-300 cursor-pointer flex justify-between items-center"
                 onClick={() => handleDelete(patient.AnimalID)}
               >
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-800">
-                    {patient.animalName}
-                  </span>
-                  <button
-                    className="text-red-600 hover:text-red-800 font-semibold"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(patient.AnimalID);
-                    }}
-                  >
-                    Sil
-                  </button>
-                </div>
+                <span className="text-lg font-semibold text-gray-800">
+                  {patient.Name}
+                </span>
+                <button
+                  className="text-red-600 hover:text-red-800 font-semibold px-4 py-2 rounded-lg border border-red-200 hover:bg-red-50 transition"
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleDelete(patient.AnimalID);
+                  }}
+                >
+                  Sil
+                </button>
               </div>
             ))}
           </div>
@@ -94,10 +107,6 @@ const DeletePatient: React.FC = () => {
             <div className="text-center text-gray-500 mt-4">
               Aradığınız kriterlere uygun hasta bulunamadı.
             </div>
-          )}
-
-          {message && (
-            <div className="text-center text-green-600 mt-4">{message}</div>
           )}
         </div>
       </div>

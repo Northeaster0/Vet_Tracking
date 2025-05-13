@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// Define types for our data
+// Veri tipleri tanımlamaları
 interface Species {
   id: number;
   name: string;
@@ -23,13 +23,14 @@ interface Diagnosis {
   id: number;
   name: string;
   description: string;
-  complaintIds: number[]; // Complaints associated with this diagnosis
-  speciesIds: number[]; // Species this diagnosis applies to
-  breedIds?: number[]; // Optional: specific breeds this applies to
-  ageRanges?: string[]; // Optional: age ranges this applies to
-  genders?: string[]; // Optional: genders this applies to
+  complaintIds: number[]; // Bu teşhise bağlı şikayetler
+  speciesIds: number[]; // Bu teşhisin geçerli olduğu türler
+  breedIds?: number[]; // Opsiyonel: Bu teşhisin geçerli olduğu ırklar
+  ageRanges?: string[]; // Opsiyonel: Bu teşhisin geçerli olduğu yaş aralıkları
+  genders?: string[]; // Opsiyonel: Bu teşhisin geçerli olduğu cinsiyetler
 }
 
+// Örnek tür verileri
 const mockSpecies: Species[] = [
   { id: 1, name: 'Köpek' },
   { id: 2, name: 'Kedi' },
@@ -39,7 +40,7 @@ const mockSpecies: Species[] = [
   { id: 6, name: 'Egzotik' } // Yeni eklendi
 ];
 
-// Yeni ırkların eklenmesi
+// Örnek ırk verileri
 const mockBreeds: Breed[] = [
   // Köpek ırkları (speciesId: 1)
   { id: 1, name: 'Golden Retriever', speciesId: 1 },
@@ -95,7 +96,7 @@ const mockBreeds: Breed[] = [
   { id: 41, name: 'Mavi Ara Papağan', speciesId: 6 }
 ];
 
-// Şikayet listesinin güncellenmesi
+// Örnek şikayet verileri
 const mockComplaints: Complaint[] = [
   { id: 1, name: 'İştahsızlık', description: 'Hayvan yemek yemeyi reddediyor' },
   { id: 2, name: 'Kusma', description: 'Hayvan kusma belirtileri gösteriyor' },
@@ -122,7 +123,7 @@ const mockComplaints: Complaint[] = [
   { id: 23, name: 'Süt veriminde düşüş', description: 'Ani süt veriminde azalma' }
 ];
 
-// Teşhis listesinin güncellenmesi
+// Örnek teşhis verileri
 const mockDiagnoses: Diagnosis[] = [
   {
     id: 1,
@@ -162,7 +163,7 @@ const mockDiagnoses: Diagnosis[] = [
   },
 ];
 
-
+// Yaş aralıkları ve cinsiyet seçenekleri
 const ageRanges = [
   '0-6 ay',
   '6-12 ay',
@@ -174,7 +175,7 @@ const ageRanges = [
 const genders = ['Erkek', 'Dişi'];
 
 const WhatsWrong: React.FC = () => {
-  // State management
+  // State yönetimi
   const [step, setStep] = useState<number>(1);
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(null);
   const [selectedBreed, setSelectedBreed] = useState<Breed | null>(null);
@@ -185,7 +186,7 @@ const WhatsWrong: React.FC = () => {
   
   const [filteredBreeds, setFilteredBreeds] = useState<Breed[]>([]);
 
-  // Update filtered breeds when species is selected
+  // Seçilen türe göre ırkları filtrele
   useEffect(() => {
     if (selectedSpecies) {
       const breeds = mockBreeds.filter(breed => breed.speciesId === selectedSpecies.id);
@@ -195,28 +196,28 @@ const WhatsWrong: React.FC = () => {
     }
   }, [selectedSpecies]);
 
-  // Calculate possible diagnoses based on selections
+  // Seçimlere göre olası teşhisleri hesapla
   useEffect(() => {
     if (step === 5 && selectedComplaints.length > 0 && selectedSpecies) {
       const complaintIds = selectedComplaints.map(complaint => complaint.id);
       
-      // Filter diagnoses based on selected criteria
+      // Seçilen kriterlere göre teşhisleri filtrele
       const diagnoses = mockDiagnoses.filter(diagnosis => {
-        // Must match species
+        // Tür eşleşmesi kontrolü
         if (!diagnosis.speciesIds.includes(selectedSpecies.id)) return false;
         
-        // Must have at least one matching complaint
+        // En az bir şikayet eşleşmesi kontrolü
         if (!complaintIds.some(id => diagnosis.complaintIds.includes(id))) return false;
         
-        // Check breed if specified
+        // Irk kontrolü (belirtilmişse)
         if (diagnosis.breedIds && selectedBreed && 
             !diagnosis.breedIds.includes(selectedBreed.id)) return false;
         
-        // Check age if specified
+        // Yaş kontrolü (belirtilmişse)
         if (diagnosis.ageRanges && selectedAge && 
             !diagnosis.ageRanges.includes(selectedAge)) return false;
             
-        // Check gender if specified
+        // Cinsiyet kontrolü (belirtilmişse)
         if (diagnosis.genders && selectedGender && 
             !diagnosis.genders.includes(selectedGender)) return false;
             
@@ -227,27 +228,32 @@ const WhatsWrong: React.FC = () => {
     }
   }, [step, selectedSpecies, selectedBreed, selectedGender, selectedAge, selectedComplaints]);
 
+  // Tür seçim işleyicisi
   const handleSpeciesSelect = (species: Species) => {
     setSelectedSpecies(species);
-    setSelectedBreed(null); // Reset breed when species changes
+    setSelectedBreed(null); // Tür değiştiğinde ırkı sıfırla
     setStep(2);
   };
 
+  // Irk seçim işleyicisi
   const handleBreedSelect = (breed: Breed) => {
     setSelectedBreed(breed);
     setStep(3);
   };
 
+  // Cinsiyet seçim işleyicisi
   const handleGenderSelect = (gender: string) => {
     setSelectedGender(gender);
     setStep(4);
   };
 
+  // Yaş seçim işleyicisi
   const handleAgeSelect = (age: string) => {
     setSelectedAge(age);
     setStep(5);
   };
 
+  // Şikayet seçim işleyicisi
   const toggleComplaint = (complaint: Complaint) => {
     if (selectedComplaints.find(c => c.id === complaint.id)) {
       setSelectedComplaints(selectedComplaints.filter(c => c.id !== complaint.id));
@@ -256,10 +262,12 @@ const WhatsWrong: React.FC = () => {
     }
   };
 
+  // Şikayetleri gönder
   const handleComplaintsSubmit = () => {
     setStep(6);
   };
 
+  // Tanı sürecini sıfırla
   const resetDiagnostic = () => {
     setStep(1);
     setSelectedSpecies(null);
@@ -270,9 +278,9 @@ const WhatsWrong: React.FC = () => {
     setPossibleDiagnoses([]);
   };
 
-  // Handle going back to a specific step
+  // Belirli bir adıma geri dön
   const handleGoToStep = (targetStep: number) => {
-    // Reset data for steps after the target step
+    // Hedef adımdan sonraki adımların verilerini sıfırla
     if (targetStep < 2) setSelectedSpecies(null);
     if (targetStep < 3) setSelectedBreed(null);
     if (targetStep < 4) setSelectedGender(null);
@@ -282,6 +290,7 @@ const WhatsWrong: React.FC = () => {
     setStep(targetStep);
   };
 
+  // Adım içeriğini oluştur
   const renderStepContent = () => {
     switch (step) {
       case 1:
@@ -293,7 +302,7 @@ const WhatsWrong: React.FC = () => {
                 <button
                   key={species.id}
                   onClick={() => handleSpeciesSelect(species)}
-                  className="p-4 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition-colors"
+                  className="p-4 bg-[#d68f13] text-white rounded-xl shadow hover:bg-[#b8770f] transition duration-300 transform hover:scale-105"
                 >
                   {species.name}
                 </button>
@@ -312,7 +321,7 @@ const WhatsWrong: React.FC = () => {
                 <button
                   key={breed.id}
                   onClick={() => handleBreedSelect(breed)}
-                  className="p-4 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition-colors"
+                  className="p-4 bg-[#d68f13] text-white rounded-xl shadow hover:bg-[#b8770f] transition duration-300 transform hover:scale-105"
                 >
                   {breed.name}
                 </button>
@@ -329,7 +338,7 @@ const WhatsWrong: React.FC = () => {
                 <button
                   key={gender}
                   onClick={() => handleGenderSelect(gender)}
-                  className="p-4 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition-colors"
+                  className="p-4 bg-[#d68f13] text-white rounded-xl shadow hover:bg-[#b8770f] transition duration-300 transform hover:scale-105"
                 >
                   {gender}
                 </button>
@@ -346,7 +355,7 @@ const WhatsWrong: React.FC = () => {
                 <button
                   key={age}
                   onClick={() => handleAgeSelect(age)}
-                  className="p-4 bg-blue-100 rounded-lg shadow hover:bg-blue-200 transition-colors"
+                  className="p-4 bg-[#d68f13] text-white rounded-xl shadow hover:bg-[#b8770f] transition duration-300 transform hover:scale-105"
                 >
                   {age}
                 </button>
@@ -364,10 +373,10 @@ const WhatsWrong: React.FC = () => {
                 <button
                   key={complaint.id}
                   onClick={() => toggleComplaint(complaint)}
-                  className={`p-4 rounded-lg shadow text-left transition-colors ${
+                  className={`p-4 rounded-xl shadow text-left transition duration-300 transform hover:scale-[1.01] ${
                     selectedComplaints.find(c => c.id === complaint.id)
-                      ? 'bg-blue-400 text-white'
-                      : 'bg-blue-100 hover:bg-blue-200'
+                      ? 'bg-[#d68f13] text-white'
+                      : 'bg-white hover:bg-gray-50'
                   }`}
                 >
                   <strong>{complaint.name}</strong>
@@ -385,8 +394,8 @@ const WhatsWrong: React.FC = () => {
             {possibleDiagnoses.length > 0 ? (
               <div className="space-y-4">
                 {possibleDiagnoses.map(diagnosis => (
-                  <div key={diagnosis.id} className="p-4 bg-white rounded-lg shadow border-l-4 border-blue-500">
-                    <h3 className="text-xl font-bold text-blue-700">{diagnosis.name}</h3>
+                  <div key={diagnosis.id} className="p-4 bg-white rounded-xl shadow border-l-4 border-[#d68f13]">
+                    <h3 className="text-xl font-bold text-gray-800">{diagnosis.name}</h3>
                     <p className="text-gray-600 mt-2">{diagnosis.description}</p>
                     <div className="mt-2">
                       <span className="text-sm font-semibold">İlişkili Belirtiler: </span>
@@ -399,13 +408,13 @@ const WhatsWrong: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="p-4 bg-yellow-100 rounded-lg">
+              <div className="p-4 bg-yellow-100 rounded-xl">
                 <p>Seçilen kriterlere uygun tanı bulunamadı. Lütfen bir veteriner hekime başvurun.</p>
               </div>
             )}
             <button
               onClick={resetDiagnostic}
-              className="mt-6 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="mt-6 px-6 py-2 bg-[#d68f13] text-white rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg"
             >
               Yeni Tanı Başlat
             </button>
@@ -416,7 +425,7 @@ const WhatsWrong: React.FC = () => {
     }
   };
 
-  // Generate step labels for progress navigation
+  // İlerleme çubuğu için adım etiketleri
   const stepLabels = [
     "Tür",
     "Cins",
@@ -427,36 +436,43 @@ const WhatsWrong: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-4xl mx-auto">
+        {/* Başlık Bölümü */}
         <div className="flex justify-between items-center mb-8">
-          <Link to="/patient-Dashboard" className="flex items-center text-blue-600 hover:text-blue-800">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span>Ana Sayfa</span>
-          </Link>
-          <h1 className="text-3xl font-bold text-center text-blue-800">Veteriner Tanı Sistemi</h1>
-          <div className="w-24">
-            {/* Empty div to balance the layout */}
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">🔍</span> Veteriner Tanı Sistemi
+              </h2>
+              <p className="text-sm text-gray-500">Hayvanınızın sağlık durumunu değerlendirin</p>
+            </div>
           </div>
+          <Link
+            to="/patient-Dashboard"
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
         </div>
 
-        {/* Interactive Progress bar */}
+        {/* İnteraktif İlerleme Çubuğu */}
         <div className="mb-8">
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+          <div className="w-full bg-gray-200 rounded-xl h-2.5 mb-2">
             <div
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
+              className="bg-[#d68f13] h-2.5 rounded-xl transition-all duration-300 ease-in-out"
               style={{ width: `${(step / 6) * 100}%` }}
             ></div>
           </div>
           
-          {/* Step indicators with click functionality */}
+          {/* Tıklanabilir Adım Göstergeleri */}
           <div className="flex justify-between mt-2">
             {stepLabels.map((label, index) => {
               const stepNum = index + 1;
               const isActive = stepNum <= step;
-              const isSelectable = stepNum < step; // Only previous steps are selectable
+              const isSelectable = stepNum < step; // Sadece önceki adımlar seçilebilir
               
               return (
                 <button
@@ -464,12 +480,12 @@ const WhatsWrong: React.FC = () => {
                   onClick={() => isSelectable ? handleGoToStep(stepNum) : null}
                   disabled={!isSelectable}
                   className={`relative flex flex-col items-center ${
-                    isSelectable ? 'cursor-pointer text-blue-600 hover:text-blue-800' : 
-                    isActive ? 'text-blue-600' : 'text-gray-400'
+                    isSelectable ? 'cursor-pointer text-[#d68f13] hover:text-[#b8770f]' : 
+                    isActive ? 'text-[#d68f13]' : 'text-gray-400'
                   }`}
                 >
-                  <div className={`w-4 h-4 rounded-full mb-1 ${
-                    isActive ? 'bg-blue-600' : 'bg-gray-300'
+                  <div className={`w-4 h-4 rounded-xl mb-1 ${
+                    isActive ? 'bg-[#d68f13]' : 'bg-gray-300'
                   }`}></div>
                   <span className="text-xs">{label}</span>
                 </button>
@@ -478,17 +494,17 @@ const WhatsWrong: React.FC = () => {
           </div>
         </div>
 
-        {/* Summary of selections with edit buttons */}
+        {/* Seçimlerin Özeti ve Düzenleme Butonları */}
         {step > 1 && (
-          <div className="bg-white p-4 rounded-lg shadow mb-6">
+          <div className="bg-white p-4 rounded-xl shadow mb-6">
             <h3 className="font-bold text-gray-700 mb-2">Seçimleriniz:</h3>
             <div className="flex flex-wrap gap-2">
               {selectedSpecies && (
-                <div className="flex items-center px-3 py-1 bg-blue-100 rounded-full text-sm">
+                <div className="flex items-center px-3 py-1 bg-[#d68f13] text-white rounded-xl text-sm">
                   <span>Tür: {selectedSpecies.name}</span>
                   <button 
                     onClick={() => handleGoToStep(1)} 
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-white hover:text-gray-200"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -497,11 +513,11 @@ const WhatsWrong: React.FC = () => {
                 </div>
               )}
               {selectedBreed && (
-                <div className="flex items-center px-3 py-1 bg-blue-100 rounded-full text-sm">
+                <div className="flex items-center px-3 py-1 bg-[#d68f13] text-white rounded-xl text-sm">
                   <span>Cins: {selectedBreed.name}</span>
                   <button 
                     onClick={() => handleGoToStep(2)} 
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-white hover:text-gray-200"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -510,11 +526,11 @@ const WhatsWrong: React.FC = () => {
                 </div>
               )}
               {selectedGender && (
-                <div className="flex items-center px-3 py-1 bg-blue-100 rounded-full text-sm">
+                <div className="flex items-center px-3 py-1 bg-[#d68f13] text-white rounded-xl text-sm">
                   <span>Cinsiyet: {selectedGender}</span>
                   <button 
                     onClick={() => handleGoToStep(3)} 
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-white hover:text-gray-200"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -523,11 +539,11 @@ const WhatsWrong: React.FC = () => {
                 </div>
               )}
               {selectedAge && (
-                <div className="flex items-center px-3 py-1 bg-blue-100 rounded-full text-sm">
+                <div className="flex items-center px-3 py-1 bg-[#d68f13] text-white rounded-xl text-sm">
                   <span>Yaş: {selectedAge}</span>
                   <button 
                     onClick={() => handleGoToStep(4)} 
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-white hover:text-gray-200"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -536,11 +552,11 @@ const WhatsWrong: React.FC = () => {
                 </div>
               )}
               {step > 5 && selectedComplaints.map(complaint => (
-                <div key={complaint.id} className="flex items-center px-3 py-1 bg-blue-100 rounded-full text-sm">
+                <div key={complaint.id} className="flex items-center px-3 py-1 bg-[#d68f13] text-white rounded-xl text-sm">
                   <span>{complaint.name}</span>
                   <button 
                     onClick={() => handleGoToStep(5)} 
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-white hover:text-gray-200"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -552,17 +568,17 @@ const WhatsWrong: React.FC = () => {
           </div>
         )}
 
-        {/* Step content */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        {/* Adım İçeriği */}
+        <div className="bg-white p-6 rounded-xl shadow">
           {renderStepContent()}
         </div>
         
-        {/* Navigation buttons */}
+        {/* Navigasyon Butonları */}
         {step > 1 && step < 6 && (
           <div className="flex justify-between mt-6">
             <button
               onClick={() => setStep(step - 1)}
-              className="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center"
+              className="px-6 py-2 bg-gray-200 rounded-xl hover:bg-gray-300 transition duration-300 transform hover:scale-105 shadow-lg flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -573,11 +589,11 @@ const WhatsWrong: React.FC = () => {
               <button
                 onClick={handleComplaintsSubmit}
                 disabled={selectedComplaints.length === 0}
-                className={`px-6 py-2 rounded-lg flex items-center ${
+                className={`px-6 py-2 rounded-xl flex items-center ${
                   selectedComplaints.length === 0
                     ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-blue-500 hover:bg-blue-600 text-white'
-                }`}
+                    : 'bg-[#d68f13] hover:bg-[#b8770f] text-white'
+                } transition duration-300 transform hover:scale-105 shadow-lg`}
               >
                 Devam Et
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

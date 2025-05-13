@@ -83,30 +83,42 @@ const PatientVaccineStatus: React.FC = () => {
   }, [animalId]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-4xl mx-auto">
-        <Link 
-          to="/patient-dashboard" 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">💉</span> Aşı Durumu
+              </h2>
+              <p className="text-sm text-gray-500">Hayvanın aşı kayıtları</p>
+            </div>
+          </div>
+          <Link
+            to="/patient-dashboard"
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
+        </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Aşı Durumu
-          </h2>
-
+        {/* Ana Kart */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="space-y-4">
             {staticVaccines.map((vaccine) => (
-              <div key={vaccine.id} className="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row md:justify-between md:items-center">
-                <div>
-                  <span className="text-lg font-semibold text-gray-800">{vaccine.name}</span>
-                  <div className="text-sm text-gray-500 mt-1">Tarih: {vaccine.date}</div>
+              <div key={vaccine.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition duration-300 transform hover:scale-[1.01]">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+                  <div>
+                    <span className="text-lg font-semibold text-gray-800">{vaccine.name}</span>
+                    <div className="text-sm text-gray-500 mt-1">Tarih: {vaccine.date}</div>
+                  </div>
+                  <span className={`${vaccine.statusColor} font-bold mt-2 md:mt-0`}>
+                    {vaccine.status}
+                  </span>
                 </div>
-                <span className={vaccine.statusColor + ' font-bold mt-2 md:mt-0'}>
-                  {vaccine.status}
-                </span>
               </div>
             ))}
           </div>

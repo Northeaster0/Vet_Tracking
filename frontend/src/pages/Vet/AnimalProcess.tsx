@@ -40,8 +40,7 @@ const AnimalProcess: React.FC = () => {
               to="/whatsWrong"
               className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
-              <span>⚠️</span>
-              <span>Sorun Bildir</span>
+              <span>Neyi Var Ki?</span>
             </Link>
             <button
               onClick={handleLogout}

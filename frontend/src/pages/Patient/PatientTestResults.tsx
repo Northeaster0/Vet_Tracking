@@ -48,27 +48,37 @@ const labResults = [
 const PatientTestResults: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'radyoloji' | 'lab'>('radyoloji');
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-4xl mx-auto">
-        <Link 
-          to="/patient-dashboard" 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">📊</span> Radyolojik ve Labaratuvar Sonuçları
+              </h2>
+              <p className="text-sm text-gray-500">Hayvanın tüm test sonuçları</p>
+            </div>
+          </div>
+          <Link
+            to="/patient-dashboard"
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
+        </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Radyolojik ve Labaratuvar Sonuçları
-          </h2>
-
+        {/* Ana Kart */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           {/* Sekmeler */}
           <div className="flex space-x-4 mb-6">
             <button
               onClick={() => setActiveTab('radyoloji')}
-              className={`px-6 py-2 rounded-lg font-semibold transition duration-300 ${
+              className={`px-6 py-2 rounded-xl font-semibold transition duration-300 ${
                 activeTab === 'radyoloji'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#d68f13] text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -76,9 +86,9 @@ const PatientTestResults: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('lab')}
-              className={`px-6 py-2 rounded-lg font-semibold transition duration-300 ${
+              className={`px-6 py-2 rounded-xl font-semibold transition duration-300 ${
                 activeTab === 'lab'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#d68f13] text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -90,7 +100,7 @@ const PatientTestResults: React.FC = () => {
           {activeTab === 'radyoloji' ? (
             <div className="space-y-6">
               {radiologyResults.map((r) => (
-                <div key={r.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
+                <div key={r.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition duration-300 transform hover:scale-[1.01]">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">{r.type}</h3>
@@ -105,7 +115,7 @@ const PatientTestResults: React.FC = () => {
           ) : (
             <div className="space-y-6">
               {labResults.map((test) => (
-                <div key={test.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
+                <div key={test.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition duration-300 transform hover:scale-[1.01]">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">
@@ -146,7 +156,7 @@ const PatientTestResults: React.FC = () => {
                   </div>
 
                   {test.notes && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-gray-50 p-4 rounded-xl">
                       <h4 className="text-md font-medium text-gray-700 mb-2">
                         Doktor Notları:
                       </h4>

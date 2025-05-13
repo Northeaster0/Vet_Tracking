@@ -45,50 +45,63 @@ const ClientProfile: React.FC = () => {
   if (!profile) return <div>Yükleniyor...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-2xl mx-auto">
-        <Link 
-          to="/patient-dashboard" 
-          className="text-blue-600 hover:text-blue-800 text-3xl font-bold mb-4 inline-block"
-        >
-          ←
-        </Link>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-2xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">👤</span> Profil Bilgileri
+              </h2>
+              <p className="text-sm text-gray-500">Kişisel bilgilerinizi görüntüleyin ve güncelleyin</p>
+            </div>
+          </div>
+          <Link
+            to="/patient-dashboard"
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
+        </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-blue-900 mb-6">
-            Profil Bilgileri
-          </h2>
+        {/* Message Display */}
+        {successMsg && <div className="mb-6 p-4 rounded-xl bg-green-100 text-green-800 text-center font-semibold">{successMsg}</div>}
 
+        {/* Form Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Sadece Görüntülenebilir Alanlar */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Kimlik No
                 </label>
                 <input
                   type="text"
                   value={profile.NationalID || ''}
                   readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   İsim
                 </label>
                 <input
                   type="text"
                   value={profile.FName + ' ' + profile.LName}
                   readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50"
                 />
               </div>
             </div>
 
             {/* Düzenlenebilir Alanlar */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                 Telefon Numarası
               </label>
               <input
@@ -97,13 +110,13 @@ const ClientProfile: React.FC = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 E-posta Adresi
               </label>
               <input
@@ -112,13 +125,13 @@ const ClientProfile: React.FC = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
                 Adres
               </label>
               <textarea
@@ -127,18 +140,17 @@ const ClientProfile: React.FC = () => {
                 value={formData.address}
                 onChange={handleChange}
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#d68f13] focus:border-[#d68f13] transition duration-300"
                 required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+              className="w-full bg-[#d68f13] text-white py-3 px-4 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-[1.02] shadow-lg font-semibold"
             >
               Kaydet
             </button>
-            {successMsg && <div className="text-center text-green-700 font-semibold mt-2">{successMsg}</div>}
           </form>
         </div>
       </div>

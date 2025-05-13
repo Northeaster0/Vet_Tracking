@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 interface Anamnez {
   AnamnezID: number;
@@ -64,14 +64,39 @@ const Anamnezs: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-3xl font-extrabold text-blue-900 mb-8 text-center tracking-tight">Anamnezler</h2>
-        <div className="mb-10">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+      <div className="w-full max-w-2xl mx-auto">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-12 bg-[#d68f13] rounded-full"></div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">📝</span> Anamnezler
+              </h2>
+              <p className="text-sm text-gray-500">Hayvanın geçmiş anamnez kayıtlarını görüntüleyin ve yeni ekleyin</p>
+            </div>
+          </div>
+          <Link
+            to={`/patientAcception?animalId=${animalId}`}
+            className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
+            <span>←</span>
+            <span>Geri Dön</span>
+          </Link>
+        </div>
+
+        {/* Message Display */}
+        {addMsg && <div className="mb-6 p-4 rounded-xl bg-green-100 text-green-800 text-center font-semibold">{addMsg}</div>}
+        {error && <div className="mb-6 p-4 rounded-xl bg-red-100 text-red-800 text-center font-semibold">{error}</div>}
+
+        {/* Anamnez Listesi */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <h3 className="text-xl font-bold text-blue-900 mb-6 flex items-center">
+            <span className="mr-2">📋</span> Anamnez Kayıtları
+          </h3>
           {loading ? (
             <div className="text-blue-900 text-center">Yükleniyor...</div>
-          ) : error ? (
-            <div className="text-red-600 text-center">{error}</div>
           ) : anamnezs.length === 0 ? (
             <div className="text-gray-400 text-center text-lg">Mevcut anamnez yok.</div>
           ) : (
@@ -88,25 +113,30 @@ const Anamnezs: React.FC = () => {
             </div>
           )}
         </div>
-        <form onSubmit={handleAdd} className="bg-gray-50 p-6 rounded-xl flex flex-col gap-4 shadow-inner">
-          <h3 className="text-xl font-bold text-blue-800 mb-2">Yeni Anamnez Ekle</h3>
-          <textarea
-            value={detail}
-            onChange={e => setDetail(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-            rows={3}
-            placeholder="Anamnez notunu buraya yazın..."
-            required
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 text-lg"
-            disabled={!detail}
-          >
-            Anamnez Ekle
-          </button>
-          {addMsg && <div className="text-center text-blue-900 font-semibold mt-2">{addMsg}</div>}
-        </form>
+
+        {/* Yeni Anamnez Ekle */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <form onSubmit={handleAdd} className="space-y-4">
+            <h3 className="text-xl font-bold text-blue-800 mb-2 flex items-center">
+              <span className="mr-2">➕</span> Yeni Anamnez Ekle
+            </h3>
+            <textarea
+              value={detail}
+              onChange={e => setDetail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+              rows={3}
+              placeholder="Anamnez notunu buraya yazın..."
+              required
+            />
+            <button
+              type="submit"
+              className="w-full bg-[#d68f13] text-white py-3 px-4 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-[1.02] shadow-lg font-semibold text-lg"
+              disabled={!detail}
+            >
+              Kaydet
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

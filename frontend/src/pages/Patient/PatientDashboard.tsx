@@ -18,7 +18,6 @@ const PatientDashboard: React.FC = () => {
     { title: 'Aşı Durumu', path: '/patientVaccineStatus', icon: '💉', color: 'bg-yellow-600 hover:bg-yellow-700' },
     { title: 'Nöbetçi Veterinerler', path: '/veterinarian-on-call', icon: '🩺', color: 'bg-pink-600 hover:bg-pink-700' },
     { title: 'RandevuAl', path: '/patientAppointment', icon: '📅', color: 'bg-orange-600 hover:bg-orange-700' },
-    { title: 'Çıkış Yap', path: '/', icon: '🚪', color: 'bg-red-600 hover:bg-red-700' }
   ];
 
   const calculateAge = (dateOfBirth: string) => {
@@ -85,8 +84,7 @@ const PatientDashboard: React.FC = () => {
               to="/whatsWrong"
               className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
-              <span>⚠️</span>
-              <span>Sorun Bildir</span>
+              <span>Neyi Var Ki?</span>
             </Link>
             <button
               onClick={() => setShowLogoutConfirm(true)}
@@ -194,19 +192,49 @@ const PatientDashboard: React.FC = () => {
             <Link
               key={index}
               to={
-                button.title === 'Reçete Geçmişi' && selectedAnimal
+                button.title !== 'Profil' && selectedAnimal
                   ? `${button.path}?animalId=${selectedAnimal}`
                   : button.path
               }
-              onClick={button.title === 'Çıkış Yap' ? confirmLogout : undefined}
-              className={`${button.color} text-white p-4 rounded-lg shadow-lg transform transition duration-300 hover:scale-105 flex items-center justify-center text-center ${
-                (button.title !== 'Çıkış Yap' && button.title !== 'Profil' && !selectedAnimal) ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+              className={`group bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] overflow-hidden ${
+                (button.title !== 'Profil' && !selectedAnimal) ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
               }`}
             >
-              <span className="mr-2 text-xl">{button.icon}</span>
-              <span className="text-lg font-semibold">{button.title}</span>
+              <div className="p-6">
+                <div className="flex items-center space-x-4 mb-2">
+                  <div className="bg-[#d68f13]/10 p-3 rounded-xl">
+                    <span className="text-2xl">{button.icon}</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#d68f13] transition duration-300">
+                    {button.title}
+                  </h3>
+                </div>
+              </div>
+              <div className="bg-[#d68f13]/5 px-6 py-3 border-t border-gray-100">
+                <span className="text-[#d68f13] text-sm font-medium">İşleme Git →</span>
+              </div>
             </Link>
           ))}
+          
+          {/* Logout Button */}
+          <button
+            onClick={() => setShowLogoutConfirm(true)}
+            className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] overflow-hidden text-left"
+          >
+            <div className="p-6">
+              <div className="flex items-center space-x-4 mb-2">
+                <div className="bg-[#d68f13]/10 p-3 rounded-xl">
+                  <span className="text-2xl">🚪</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#d68f13] transition duration-300">
+                  Çıkış Yap
+                </h3>
+              </div>
+            </div>
+            <div className="bg-[#d68f13]/5 px-6 py-3 border-t border-gray-100">
+              <span className="text-[#d68f13] text-sm font-medium">Oturumu Kapat →</span>
+            </div>
+          </button>
         </div>
       </div>
     </div>
