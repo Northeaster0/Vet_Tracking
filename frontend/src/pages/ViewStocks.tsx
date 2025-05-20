@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Stok öğesi için tip tanımı
 interface StockItem {
@@ -23,6 +23,7 @@ interface VaccineItem {
 }
 
 const ViewStocks: React.FC = () => {
+  const navigate = useNavigate();
   // State tanımlamaları
   const [stockType, setStockType] = useState<'medicine' | 'vaccine'>('medicine');
   const [stockItems, setStockItems] = useState<StockItem[]>([]);
@@ -178,13 +179,13 @@ const ViewStocks: React.FC = () => {
               <p className="text-sm text-gray-500">İlaç ve aşı stokları</p>
             </div>
           </div>
-          <Link
-            to="/animal-process"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Stok Tipi Seçimi ve Arama Bölümü */}

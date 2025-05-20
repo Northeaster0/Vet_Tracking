@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const calculateAge = (dateOfBirth: string) => {
   const birth = new Date(dateOfBirth);
@@ -15,9 +15,9 @@ const calculateAge = (dateOfBirth: string) => {
 const PatientAcception: React.FC = () => {
   const [animalInfo, setAnimalInfo] = useState<any>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!animalId) return;
@@ -29,7 +29,6 @@ const PatientAcception: React.FC = () => {
   if (!animalInfo) return <div className="text-center py-8 text-gray-600">Yükleniyor...</div>;
 
   const actionButtons = [
-
     { title: 'Randevu Oluştur', path: `/addAppointment?animalId=${animalInfo.AnimalID}`, icon: '📅' },
     { title: 'Radyoloji ve Labaratuvar Sonuçları', path: `/tests?animalId=${animalInfo.AnimalID}`, icon: '🔬' },
     { title: 'Geçmiş Reçeteler', path: `/animalHistory?animalId=${animalInfo.AnimalID}`, icon: '💊' },
@@ -53,13 +52,13 @@ const PatientAcception: React.FC = () => {
               <p className="text-sm text-gray-500">Hasta işlemlerini yönetin</p>
             </div>
           </div>
-          <Link 
-            to="/animal-process" 
+          <button 
+            onClick={() => navigate('/animal-process')}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Patient Info Card */}
@@ -100,9 +99,9 @@ const PatientAcception: React.FC = () => {
         {/* Action Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {actionButtons.map((button, index) => (
-            <Link
+            <button
               key={index}
-              to={button.path}
+              onClick={() => navigate(button.path)}
               className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] overflow-hidden"
             >
               <div className="p-6">
@@ -118,7 +117,7 @@ const PatientAcception: React.FC = () => {
               <div className="bg-[#d68f13]/5 px-6 py-3 border-t border-gray-100">
                 <span className="text-[#d68f13] text-sm font-medium">İşleme Git →</span>
               </div>
-            </Link>
+            </button>
           ))}
         </div>
       </div>

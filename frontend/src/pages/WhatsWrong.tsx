@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Veri tipleri tanımlamaları
 interface Species {
@@ -175,6 +175,7 @@ const ageRanges = [
 const genders = ['Erkek', 'Dişi'];
 
 const WhatsWrong: React.FC = () => {
+  const navigate = useNavigate();
   // State yönetimi
   const [step, setStep] = useState<number>(1);
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(null);
@@ -449,13 +450,13 @@ const WhatsWrong: React.FC = () => {
               <p className="text-sm text-gray-500">Hayvanınızın sağlık durumunu değerlendirin</p>
             </div>
           </div>
-          <Link
-            to="/patient-Dashboard"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* İnteraktif İlerleme Çubuğu */}

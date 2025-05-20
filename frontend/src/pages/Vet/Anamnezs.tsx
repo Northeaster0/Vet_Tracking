@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useVetAuth } from '../../contexts/VetAuthContext';
 
 interface Anamnez {
   AnamnezID: number;
@@ -11,8 +12,10 @@ interface Anamnez {
 
 const Anamnezs: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
+  const { vet } = useVetAuth();
 
   const [anamnezs, setAnamnezs] = useState<Anamnez[]>([]);
   const [loading, setLoading] = useState(false);
@@ -42,8 +45,7 @@ const Anamnezs: React.FC = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddMsg('');
-    const doctor = JSON.parse(localStorage.getItem('doctor') || '{}');
-    const veterinaryId = doctor.VeterinaryID || doctor.id || 1;
+    const veterinaryId = vet?.VeterinaryID || 1;
     try {
       const res = await fetch('http://localhost:5000/api/anamnezs', {
         method: 'POST',
@@ -77,13 +79,13 @@ const Anamnezs: React.FC = () => {
               <p className="text-sm text-gray-500">Hayvanın geçmiş anamnez kayıtlarını görüntüleyin ve yeni ekleyin</p>
             </div>
           </div>
-          <Link
-            to={`/patientAcception?animalId=${animalId}`}
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Message Display */}

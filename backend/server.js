@@ -774,15 +774,29 @@ app.get('/api/animals/:animalId/vaccines', async (req, res) => {
 });
 
 app.post('/api/appointments', async (req, res) => {
-  const { VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status, CreatedAt } = req.body;
+  console.log('Appointment request body:', req.body);
+  const { VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status } = req.body;
+  
   try {
+    // Format the appointment date for MySQL
+    const formattedDateTime = new Date(AppointmentDateTime).toISOString().slice(0, 19).replace('T', ' ');
+    
+    // Use 'Scheduled' as the default status if not provided
+    const appointmentStatus = Status || 'Scheduled';
+    
     await db.query(
-      'INSERT INTO Appointments (VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status, CreatedAt]
+      'INSERT INTO Appointments (VeterinaryID, AnimalID, OwnerID, AppointmentDateTime, Reason, Status, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+      [VeterinaryID, AnimalID, OwnerID, formattedDateTime, Reason, appointmentStatus]
     );
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Randevu eklenemedi', error: error.message });
+    console.error('Appointment creation error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Randevu eklenemedi', 
+      error: error.message,
+      details: error.sqlMessage 
+    });
   }
 });
 

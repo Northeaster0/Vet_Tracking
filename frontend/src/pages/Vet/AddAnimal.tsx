@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const AddAnimal: React.FC = () => {
+  const navigate = useNavigate();
   const genders = ['Erkek', 'Dişi'];
   const [owners, setOwners] = useState<{ OwnerID: number, FName: string, LName: string }[]>([]);
   const [formData, setFormData] = useState({
@@ -105,12 +106,12 @@ const AddAnimal: React.FC = () => {
               <p className="text-sm text-gray-500">Sisteme yeni hayvan kaydı oluşturun</p>
             </div>
           </div>
-          <Link
-            to="/animal-process"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg"
           >
             Geri Dön
-          </Link>
+          </button>
         </div>
 
         {/* Message Display */}

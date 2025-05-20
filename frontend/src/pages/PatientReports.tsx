@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Folder, File, ChevronRight, ChevronDown, Eye } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import React from 'react';
 
 interface SearchResult {
@@ -100,6 +100,7 @@ const initialData: FolderItem = {
 
 
 export default function PatientReports() {
+  const navigate = useNavigate();
   // Arama fonksiyonu için state
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -248,13 +249,13 @@ export default function PatientReports() {
       <div className="w-1/4 bg-white border-r border-gray-200 overflow-auto">
         <div className="p-3 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold">Tıbbi Raporlar</h2>
-          <Link
-            to="/patient-dashboard"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-4 py-2 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
         <div className="p-2 border-b border-gray-200">
           <input

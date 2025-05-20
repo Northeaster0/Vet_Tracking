@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const FindAnimals: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [animalList, setAnimalList] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('http://localhost:5000/api/animals/with-details')
@@ -50,19 +51,19 @@ const FindAnimals: React.FC = () => {
             </div>
           </div>
           <div className="flex space-x-4">
-            <Link
-              to="/animal-process"
+            <button
+              onClick={() => navigate(-1)}
               className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
               <span>←</span>
               <span>Geri Dön</span>
-            </Link>
-            <Link
-              to="/whatsWrong"
+            </button>
+            <button
+              onClick={() => navigate('/whatsWrong')}
               className="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
               <span>Neyi Var Ki?</span>
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -80,10 +81,10 @@ const FindAnimals: React.FC = () => {
         {/* Results Section */}
         <div className="space-y-4">
           {filteredAnimals.map((animal) => (
-            <Link
+            <button
               key={animal.AnimalID}
-              to={`/patientAcception?animalId=${animal.AnimalID}`}
-              className="block bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition duration-300 transform hover:scale-[1.01]"
+              onClick={() => navigate(`/patientAcception?animalId=${animal.AnimalID}`)}
+              className="w-full text-left bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition duration-300 transform hover:scale-[1.01]"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -115,7 +116,7 @@ const FindAnimals: React.FC = () => {
                   </p>
                 </div>
               </div>
-            </Link>
+            </button>
           ))}
         </div>
       </div>

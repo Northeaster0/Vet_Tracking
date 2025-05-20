@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import FunFacts from '../../components/FunFacts';
 import logo from '../../logo.svg';
+import { useVetAuth } from '../../contexts/VetAuthContext';
 
 const DoctorLogin: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -9,6 +10,7 @@ const DoctorLogin: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
+  const { login } = useVetAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ const DoctorLogin: React.FC = () => {
       if (data.success) {
         setMessage('Giriş başarılı!');
         setIsError(false);
-        localStorage.setItem('doctor', JSON.stringify(data.doctor));
+        login(data.doctor);
         localStorage.setItem('doctorName', `Dr. ${data.doctor.FName} ${data.doctor.LName}`);
         setTimeout(() => {
           navigate('/animal-process');

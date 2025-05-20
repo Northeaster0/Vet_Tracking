@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useVetAuth } from '../../contexts/VetAuthContext';
 
 const applicationMethods = [
   { id: 1, name: 'Ağızdan' },
@@ -31,9 +32,11 @@ const AddPrescriptions: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
+  const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
+  const { vet } = useVetAuth();
 
   useEffect(() => {
     fetch('http://localhost:5000/api/diseases')
@@ -75,8 +78,7 @@ const AddPrescriptions: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const doctor = JSON.parse(localStorage.getItem('doctor') || '{}');
-    const VeterinaryID = doctor.VeterinaryID || doctor.id || 1;
+    const VeterinaryID = vet?.VeterinaryID || 1;
     const Frequency = `${formData.frequencyType} ${formData.frequencyCount} kez`;
     const payload = {
       VeterinaryID,
@@ -129,12 +131,12 @@ const AddPrescriptions: React.FC = () => {
               <p className="text-sm text-gray-500">Yeni reçete bilgilerini girin</p>
             </div>
           </div>
-          <Link
-            to={`/patientAcception?animalId=${animalId}`}
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg"
           >
             Geri Dön
-          </Link>
+          </button>
         </div>
 
         {/* Message Display */}

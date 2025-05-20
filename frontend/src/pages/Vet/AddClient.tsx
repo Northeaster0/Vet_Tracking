@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const AddClient: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     identityNo: '',
     name: '',
@@ -57,12 +58,12 @@ const AddClient: React.FC = () => {
               <p className="text-sm text-gray-500">Sisteme yeni müşteri kaydı oluşturun</p>
             </div>
           </div>
-          <Link
-            to="/animal-process"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg"
           >
             Geri Dön
-          </Link>
+          </button>
         </div>
 
         {/* Message Display */}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const FindAnimals: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [animalList, setAnimalList] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('http://localhost:5000/api/animals/with-details')
@@ -50,20 +51,19 @@ const FindAnimals: React.FC = () => {
             </div>
           </div>
           <div className="flex space-x-4">
-            <Link
-              to="/animal-process"
+            <button
+              onClick={() => navigate(-1)}
               className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
               <span>←</span>
               <span>Geri Dön</span>
-            </Link>
-            <Link
-              to="/whatsWrong"
+            </button>
+            <button
+              onClick={() => navigate('/whatsWrong')}
               className="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
-
               <span>Neyi Var Ki?</span>
-            </Link>
+            </button>
           </div>
         </div>
 

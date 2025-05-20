@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Operations: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
   
@@ -69,13 +70,13 @@ const Operations: React.FC = () => {
               <p className="text-sm text-gray-500">Hayvanın geçmiş operasyonlarını görüntüleyin ve yeni operasyon ekleyin</p>
             </div>
           </div>
-          <Link
-            to={`/patientAcception?animalId=${animalId}`}
+          <button
+            onClick={() => navigate(`/patientAcception?animalId=${animalId}`)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Message Display */}

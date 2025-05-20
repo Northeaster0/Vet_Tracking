@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const radiologyResults = [
   {
@@ -47,6 +47,8 @@ const labResults = [
 
 const PatientTestResults: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'radyoloji' | 'lab'>('radyoloji');
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
       <div className="w-full max-w-4xl mx-auto">
@@ -61,13 +63,13 @@ const PatientTestResults: React.FC = () => {
               <p className="text-sm text-gray-500">Hayvanın tüm test sonuçları</p>
             </div>
           </div>
-          <Link
-            to="/patient-dashboard"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Ana Kart */}

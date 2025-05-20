@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useOwnerAuth } from '../../contexts/OwnerAuthContext';
 
 const PatientDashboard: React.FC = () => {
   const [animals, setAnimals] = useState<any[]>([]);
@@ -10,6 +11,7 @@ const PatientDashboard: React.FC = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { owner, logout } = useOwnerAuth();
 
   const navigationButtons = [
     { title: 'Profil', path: '/patientProfile', icon: '👤', color: 'bg-blue-600 hover:bg-blue-700' },
@@ -32,12 +34,11 @@ const PatientDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    const owner = JSON.parse(localStorage.getItem('owner') || '{}');
     setUserInfo(owner);
     const searchParams = new URLSearchParams(location.search);
     const animalIdParam = searchParams.get('animalId');
 
-    if (owner.OwnerID) {
+    if (owner?.OwnerID) {
       fetch(`http://localhost:5000/api/animals/with-details?ownerId=${owner.OwnerID}`)
         .then(res => res.json())
         .then(data => {
@@ -52,7 +53,7 @@ const PatientDashboard: React.FC = () => {
           }
         });
     }
-  }, [location.search]);
+  }, [location.search, owner]);
 
   const handleAnimalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const animalId = parseInt(e.target.value);
@@ -64,6 +65,7 @@ const PatientDashboard: React.FC = () => {
 
   const confirmLogout = () => {
     setShowLogoutConfirm(false);
+    logout();
     navigate('/');
   };
 
@@ -80,12 +82,12 @@ const PatientDashboard: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Link
-              to="/whatsWrong"
+            <button
+              onClick={() => navigate('/whatsWrong')}
               className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
             >
               <span>Neyi Var Ki?</span>
-            </Link>
+            </button>
             <button
               onClick={() => setShowLogoutConfirm(true)}
               className="text-gray-500 hover:text-[#d68f13] transition duration-300 flex items-center space-x-2"
@@ -189,13 +191,16 @@ const PatientDashboard: React.FC = () => {
         {/* Navigation Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {navigationButtons.map((button, index) => (
-            <Link
+            <button
               key={index}
-              to={
-                button.title !== 'Profil' && selectedAnimal
-                  ? `${button.path}?animalId=${selectedAnimal}`
-                  : button.path
-              }
+              onClick={() => {
+                if (button.title !== 'Profil' && selectedAnimal) {
+                  navigate(`${button.path}?animalId=${selectedAnimal}`);
+                } else {
+                  navigate(button.path);
+                }
+              }}
+              disabled={button.title !== 'Profil' && !selectedAnimal}
               className={`group bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] overflow-hidden ${
                 (button.title !== 'Profil' && !selectedAnimal) ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
               }`}
@@ -213,7 +218,7 @@ const PatientDashboard: React.FC = () => {
               <div className="bg-[#d68f13]/5 px-6 py-3 border-t border-gray-100">
                 <span className="text-[#d68f13] text-sm font-medium">İşleme Git →</span>
               </div>
-            </Link>
+            </button>
           ))}
           
           {/* Logout Button */}

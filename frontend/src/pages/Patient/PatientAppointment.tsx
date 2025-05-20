@@ -3,7 +3,7 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const clinics = [
   { id: 1, name: 'VetKlinik 1' },
@@ -22,6 +22,7 @@ const locales = { 'tr-TR': tr };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
 const PatientAppointment: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedClinic, setSelectedClinic] = useState<number>(clinics[0].id);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -72,13 +73,13 @@ const PatientAppointment: React.FC = () => {
               <p className="text-sm text-gray-500">Hayvanlarınız için randevu oluşturun ve yönetin</p>
             </div>
           </div>
-          <Link
-            to="/animal-process"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Klinik seçimi */}

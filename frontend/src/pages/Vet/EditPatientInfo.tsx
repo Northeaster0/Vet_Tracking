@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // Örnek veriler (ileride API'den gelecek)
 const animalInfo = {
@@ -33,6 +33,7 @@ const EditPatientInfo: React.FC = () => {
   const [isError, setIsError] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
 
@@ -115,13 +116,13 @@ const EditPatientInfo: React.FC = () => {
               <p className="text-sm text-gray-500">Hasta bilgilerini güncelleyin</p>
             </div>
           </div>
-          <Link
-            to={`/patientAcception?animalId=${animalId}`}
+          <button
+            onClick={() => navigate(`/patientAcception?animalId=${animalId}`)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Message Display */}

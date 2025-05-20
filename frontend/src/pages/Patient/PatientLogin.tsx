@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import FunFacts from '../../components/FunFacts';
 import logo from '../../logo.svg';
+import { useOwnerAuth } from '../../contexts/OwnerAuthContext';
 
 const PatientLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +10,7 @@ const PatientLogin: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
+  const { login } = useOwnerAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,7 @@ const PatientLogin: React.FC = () => {
       if (data.success) {
         setMessage('Giriş başarılı!');
         setIsError(false);
-        localStorage.setItem('owner', JSON.stringify(data.owner));
+        login(data.owner);
         setTimeout(() => {
           navigate('/patient-dashboard');
         }, 1000);
@@ -73,10 +75,13 @@ const PatientLogin: React.FC = () => {
           <div className="w-full max-w-md p-8 rounded-2xl shadow-2xl border border-gray-100">
             {/* Geri tuşu */}
             <div className="mb-4">
-              <Link to="/" className="inline-flex items-center text-[#d68f13] hover:text-[#b8770f] font-semibold text-lg">
+              <button
+                onClick={() => navigate('/')}
+                className="inline-flex items-center text-[#d68f13] hover:text-[#b8770f] font-semibold text-lg"
+              >
                 <svg className="w-6 h-6 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                 Ana Sayfa
-              </Link>
+              </button>
             </div>
             <div className="flex flex-row items-center justify-center mb-6 gap-2">
               {/* Hasta ikonu */}
@@ -119,12 +124,20 @@ const PatientLogin: React.FC = () => {
             </form>
             <div className="mt-4 text-center">
               <span className="text-gray-500">Hesabınız yok mu?</span>
-              <a href="#" className="text-[#d68f13] hover:underline ml-1">Kayıt Ol</a>
+              <button
+                onClick={() => navigate('/register')}
+                className="text-[#d68f13] hover:underline ml-1"
+              >
+                Kayıt Ol
+              </button>
             </div>
             <div className="mt-3 text-center">
-              <Link to="/doctor-login" className="text-[#d68f13] hover:text-[#b8770f] font-semibold text-sm">
+              <button
+                onClick={() => navigate('/doctor-login')}
+                className="text-[#d68f13] hover:text-[#b8770f] font-semibold text-sm"
+              >
                 Veteriner Girişi için tıklayın
-              </Link>
+              </button>
             </div>
           </div>
         </div>

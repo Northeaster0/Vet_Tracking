@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useVetAuth } from '../../contexts/VetAuthContext';
 
 const History: React.FC = () => {
   const [operations, setOperations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const doctor = localStorage.getItem('doctorName'); // Girişte kaydedilmiş olmalı
+  const { vet } = useVetAuth();
+  const doctorName = vet ? `Dr. ${vet.FName} ${vet.LName}` : '';
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!doctor) return;
-    fetch(`http://localhost:5000/api/operations/doctor?doctor=${encodeURIComponent(doctor)}`)
+    if (!doctorName) return;
+    fetch(`http://localhost:5000/api/operations/doctor?doctor=${encodeURIComponent(doctorName)}`)
       .then(res => res.json())
       .then(data => {
         setOperations(data);
         setLoading(false);
       });
-  }, [doctor]);
+  }, [doctorName]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
@@ -30,13 +33,13 @@ const History: React.FC = () => {
               <p className="text-sm text-gray-500">Doktorun gerçekleştirdiği tüm işlemlerin listesi</p>
             </div>
           </div>
-          <Link
-            to="/animal-process"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Ana Kart */}

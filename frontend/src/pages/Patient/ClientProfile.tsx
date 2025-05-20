@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useOwnerAuth } from '../../contexts/OwnerAuthContext';
 
 const ClientProfile: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [formData, setFormData] = useState({ phone: '', email: '', address: '' });
   const [successMsg, setSuccessMsg] = useState('');
+  const { owner } = useOwnerAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const owner = JSON.parse(localStorage.getItem('owner') || '{}');
-    if (owner.OwnerID) {
+    if (owner?.OwnerID) {
       fetch(`http://localhost:5000/api/owners/${owner.OwnerID}`)
         .then(res => res.json())
         .then(data => {
@@ -16,7 +18,7 @@ const ClientProfile: React.FC = () => {
           setFormData({ phone: data.Phone || '', email: data.Email || '', address: data.Address || '' });
         });
     }
-  }, []);
+  }, [owner]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -26,8 +28,7 @@ const ClientProfile: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccessMsg('');
-    const owner = JSON.parse(localStorage.getItem('owner') || '{}');
-    if (owner.OwnerID) {
+    if (owner?.OwnerID) {
       const response = await fetch(`http://localhost:5000/api/owners/${owner.OwnerID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -58,13 +59,13 @@ const ClientProfile: React.FC = () => {
               <p className="text-sm text-gray-500">Kişisel bilgilerinizi görüntüleyin ve güncelleyin</p>
             </div>
           </div>
-          <Link
-            to="/patient-dashboard"
+          <button
+            onClick={() => navigate(-1)}
             className="bg-[#d68f13] text-white px-6 py-3 rounded-xl hover:bg-[#b8770f] transition duration-300 transform hover:scale-105 shadow-lg flex items-center space-x-2"
           >
             <span>←</span>
             <span>Geri Dön</span>
-          </Link>
+          </button>
         </div>
 
         {/* Message Display */}

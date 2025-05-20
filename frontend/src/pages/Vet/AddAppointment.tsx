@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format } from 'date-fns';
 import { parse } from 'date-fns';
@@ -7,6 +7,8 @@ import { startOfWeek } from 'date-fns';
 import { getDay } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { useVetAuth } from '../../contexts/VetAuthContext';
+import { useOwnerAuth } from '../../contexts/OwnerAuthContext';
 
 // Örnek veriler (ileride API'den gelecek)
 const appointmentTypes = [
@@ -56,16 +58,24 @@ const AddAppointment: React.FC = () => {
   const params = new URLSearchParams(location.search);
   const animalId = params.get('animalId');
 
-  // Owner ve Veterinary bilgisi localStorage'dan alınacak
-  const owner = JSON.parse(localStorage.getItem('owner') || '{}');
-  const veterinary = JSON.parse(localStorage.getItem('doctor') || '{}');
+  const { vet } = useVetAuth();
+  const { owner } = useOwnerAuth();
+
+  const navigate = useNavigate();
 
   // Randevuları çek
   useEffect(() => {
     if (!animalId) return;
     fetch(`http://localhost:5000/api/appointments?animalId=${animalId}`)
       .then(res => res.json())
-      .then(data => setAppointments(data));
+      .then(data => {
+        // Ensure data is an array before setting it
+        setAppointments(Array.isArray(data) ? data : []);
+      })
+      .catch(error => {
+        console.error('Error fetching appointments:', error);
+        setAppointments([]);
+      });
   }, [animalId]);
 
   // Randevu eklenince tekrar çek
@@ -73,7 +83,14 @@ const AddAppointment: React.FC = () => {
     if (!animalId) return;
     fetch(`http://localhost:5000/api/appointments?animalId=${animalId}`)
       .then(res => res.json())
-      .then(data => setAppointments(data));
+      .then(data => {
+        // Ensure data is an array before setting it
+        setAppointments(Array.isArray(data) ? data : []);
+      })
+      .catch(error => {
+        console.error('Error fetching appointments:', error);
+        setAppointments([]);
+      });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -86,7 +103,6 @@ const AddAppointment: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Reason alanı randevu türüne göre belirleniyor
     let reason = '';
     if (formData.appointmentType === 'Aşı') reason = formData.vaccineType;
     else if (formData.appointmentType === 'Muayene') reason = formData.examinationNote;
@@ -94,12 +110,12 @@ const AddAppointment: React.FC = () => {
     else reason = formData.appointmentType;
 
     const payload = {
-      VeterinaryID: veterinary.VeterinaryID || 1,
+      VeterinaryID: vet?.VeterinaryID || 1,
       AnimalID: Number(animalId),
-      OwnerID: owner.OwnerID || 1,
+      OwnerID: owner?.OwnerID || 1,
       AppointmentDateTime: formData.dateTime,
       Reason: reason,
-      Status: 'Planned',
+      Status: 'Scheduled',
       CreatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
     };
     try {
@@ -138,16 +154,15 @@ const AddAppointment: React.FC = () => {
   // Modalda kaydet
   const handleModalSave = async () => {
     if (!selectedDate || !modalTime) return;
-    // Tarih ve saat birleştir
     const dateStr = selectedDate.toISOString().split('T')[0];
     const dateTime = `${dateStr}T${modalTime}`;
     const payload = {
-      VeterinaryID: veterinary.VeterinaryID || 1,
+      VeterinaryID: vet?.VeterinaryID || 1,
       AnimalID: Number(animalId),
-      OwnerID: owner.OwnerID || 1,
+      OwnerID: owner?.OwnerID || 1,
       AppointmentDateTime: dateTime,
       Reason: modalNote,
-      Status: 'Planned',
+      Status: 'Scheduled',
       CreatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
     };
     try {
@@ -178,12 +193,12 @@ const AddAppointment: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="max-w-2xl mx-auto">
-        <Link 
-          to={`/patientAcception?animalId=${animalId}`} 
+        <button 
+          onClick={() => navigate(-1)}
           className="text-[#b8770f] hover:text-[#b8770f] text-3xl font-bold mb-4 inline-block"
         >
           ←
-        </Link>
+        </button>
 
         {/* Takvim görünümü */}
         <div className="mt-10">
